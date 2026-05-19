@@ -126,6 +126,15 @@ base {
     archivesName = project.property("archives_base_name").toString()
 }
 
+// 26.x uses identity mappings (official == named). Fabric Loader defaults to
+// 'official' as runtime namespace, but Fabric API class tweakers declare
+// 'named'. Setting this property aligns the runtime namespace so tweakers load.
+if (stonecutter.current.parsed matches ">=26") {
+    loom.runs.configureEach {
+        vmArgs("-Dfabric.runtimeMappingNamespace=named")
+    }
+}
+
 tasks {
     processResources {
         // Expose mod_version (without the +mc suffix) and the resolved MC version
