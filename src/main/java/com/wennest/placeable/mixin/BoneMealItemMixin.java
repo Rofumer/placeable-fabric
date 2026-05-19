@@ -3,11 +3,19 @@ package com.wennest.placeable.mixin;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.wennest.placeable.Placeable;
+//? if >=26 {
+/*import net.minecraft.world.item.BoneMealItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.Level;*/
+//?} else {
 import net.minecraft.item.BoneMealItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
+//?}
 import org.spongepowered.asm.mixin.Mixin;
 
 /**
@@ -66,13 +74,17 @@ import org.spongepowered.asm.mixin.Mixin;
 public abstract class BoneMealItemMixin {
 
     /**
-     * Wraps {@code BoneMealItem.useOnGround(ItemStack, World, BlockPos,
-     * Direction)} — vanilla's "scan adjacent grass blocks and spawn flowers /
-     * tall grass / bushes" entry point. While this method runs, every nested
-     * {@code BlockState.canPlaceAt} call hits the natural-tick branch of
-     * {@link Placeable#shouldBypass} and falls through to vanilla's strict
-     * placement rule, producing vanilla-identical bone-meal output.
+     * Wraps {@code BoneMealItem.useOnGround} — vanilla's "scan adjacent grass
+     * blocks and spawn flowers / tall grass / bushes" entry point. While this
+     * method runs, every nested {@code BlockState.canPlaceAt} call hits the
+     * natural-tick branch of {@link Placeable#shouldBypass} and falls through
+     * to vanilla's strict placement rule, producing vanilla-identical bone-meal
+     * output.
+     *
+     * <p>This method does not exist in 26.x (its logic was removed or folded
+     * into {@code useOn}), so the wrap is omitted for >=26 entirely.
      */
+    //? if <26 {
     @WrapMethod(method = "useOnGround")
     private static boolean placeable$wrapUseOnGround(
             ItemStack stack, World world, BlockPos pos, Direction side,
@@ -88,11 +100,11 @@ public abstract class BoneMealItemMixin {
             Placeable.exitNaturalTick();
         }
     }
+    //?}
 
     /**
-     * Wraps {@code BoneMealItem.useOnFertilizable(ItemStack, World, BlockPos)}
-     * — vanilla's "block implements {@link net.minecraft.block.Fertilizable};
-     * call its {@code grow} method" entry point.
+     * Wraps the bone-meal fertilizable entry point — {@code useOnFertilizable}
+     * in 1.21.x, renamed to {@code growCrop} in 26.x.
      *
      * <p>Two 1.21.5+ Fertilizable blocks — {@code BushBlock} (entry
      * {@code BUSH}) and {@code FireflyBushBlock} (entry {@code FIREFLY_BUSH})
@@ -105,10 +117,17 @@ public abstract class BoneMealItemMixin {
      * {@code canPlaceAt} is already covered because every Fertilizable
      * spread route goes through this vanilla method.
      */
+    //? if >=26 {
+    /*@WrapMethod(method = "growCrop")
+    private static boolean placeable$wrapUseOnFertilizable(
+            ItemStack stack, Level world, BlockPos pos,
+            Operation<Boolean> original) {*/
+    //?} else {
     @WrapMethod(method = "useOnFertilizable")
     private static boolean placeable$wrapUseOnFertilizable(
             ItemStack stack, World world, BlockPos pos,
             Operation<Boolean> original) {
+    //?}
         Placeable.enterNaturalTick();
         try {
             return original.call(stack, world, pos);

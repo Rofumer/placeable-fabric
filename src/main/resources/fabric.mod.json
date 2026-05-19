@@ -28,10 +28,10 @@
   ],
   "depends": {
     "cloth-config2": ">=${cloth_config_dep}",
-    "fabric": "*",
-    "java": ">=21",
+    "fabric-api": "*",
+    "java": ">=${java_dep}",
     "minecraft": "${minecraft_dep}",
-    "fabricloader": ">=0.16.10"
+    "fabricloader": ">=${fabricloader_dep}"
   },
   "recommends": {
     "modmenu": "*"

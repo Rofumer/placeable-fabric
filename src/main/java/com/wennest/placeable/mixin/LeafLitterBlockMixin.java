@@ -1,11 +1,18 @@
 package com.wennest.placeable.mixin;
 
 import com.wennest.placeable.Placeable;
+//? if >=26 {
+/*import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.LeafLitterBlock;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.LevelReader;*/
+//?} else {
 import net.minecraft.block.BlockState;
 //? if >=1.21.5
 import net.minecraft.block.LeafLitterBlock;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.WorldView;
+//?}
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -41,8 +48,13 @@ public class LeafLitterBlockMixin {
      * HEAD-injected override of {@code LeafLitterBlock.canPlaceAt}. Standard
      * relaxed-floor shape.
      */
+    //? if >=26 {
+    /*@Inject(method = "canSurvive", at = @At("HEAD"), cancellable = true)
+    public void placeable$canPlantAnywhere(BlockState state, LevelReader world, BlockPos pos,*/
+    //?} else {
     @Inject(method = "canPlaceAt", at = @At("HEAD"), cancellable = true)
     public void placeable$canPlantAnywhere(BlockState state, WorldView world, BlockPos pos,
+    //?}
                                            CallbackInfoReturnable<Boolean> cir) {
         // Defer to vanilla during worldgen and inside natural-tick frames.
         if (Placeable.shouldBypass(world, pos)) return;

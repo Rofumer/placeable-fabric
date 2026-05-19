@@ -1,10 +1,17 @@
 package com.wennest.placeable.mixin;
 
 import com.wennest.placeable.Placeable;
+//? if >=26 {
+/*import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.VegetationBlock;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.LevelReader;*/
+//?} else {
 import net.minecraft.block.BlockState;
 import net.minecraft.block.PlantBlock;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.WorldView;
+//?}
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -26,16 +33,20 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
  * (mushrooms, cactus, sugar cane, bamboo, big dripleaf, cocoa, ...) need
  * their own dedicated mixins in this same package.
  */
+//? if >=26 {
+/*@Mixin(VegetationBlock.class)*/
+//?} else {
 @Mixin(PlantBlock.class)
+//?}
 public class PlantBlockMixin {
 
-    /**
-     * HEAD-injected override of {@code PlantBlock.canPlaceAt}. Returns
-     * {@code true} early when the relaxed floor rule applies; otherwise
-     * defers to vanilla by NOT setting a return value.
-     */
+    //? if >=26 {
+    /*@Inject(method = "canSurvive", at = @At("HEAD"), cancellable = true)
+    public void placeable$canPlantAnywhere(BlockState state, LevelReader world, BlockPos pos,*/
+    //?} else {
     @Inject(method = "canPlaceAt", at = @At("HEAD"), cancellable = true)
     public void placeable$canPlantAnywhere(BlockState state, WorldView world, BlockPos pos,
+    //?}
                                            CallbackInfoReturnable<Boolean> cir) {
         // Defer to vanilla during worldgen and inside natural-tick frames.
         // MUST be first — the relaxed floor rule below would otherwise widen

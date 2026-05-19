@@ -35,7 +35,22 @@ dependencies {
     // Coordinates resolved entirely from per-version `gradle.properties` so the
     // same script handles 1.21.1 through 1.21.11 without modification.
     minecraft("com.mojang:minecraft:${property("minecraft")}")
-    mappings("net.fabricmc:yarn:${property("yarn_mappings")}:v2")
+    // 1.21.x targets use Yarn mappings. 26.x is non-obfuscated — no mappings
+    // file exists (or is needed), so we omit the mappings() call entirely.
+    // The presence of yarn_mappings in gradle.properties is the signal for
+    // Yarn; >=26 check guards the officialMojangMappings fallback.
+    if (project.hasProperty("yarn_mappings")) {
+        mappings("net.fabricmc:yarn:${property("yarn_mappings")}:v2")
+    } else if (stonecutter.current.parsed matches ">=26") {
+        // Non-obfuscated 26.x: game ships with human-readable names,
+        // no proguard mappings exist. Supply a Tiny v2 identity mapping
+        // (official == named) so Loom's config guard is satisfied.
+        // noIntermediateMappings() skips the Intermediary step entirely.
+        loom.noIntermediateMappings()
+        mappings(files("${projectDir}/identity-mappings.jar"))
+    } else {
+        mappings(loom.officialMojangMappings())
+    }
     modImplementation("net.fabricmc:fabric-loader:${property("fabric_loader")}")
     modImplementation("net.fabricmc.fabric-api:fabric-api:${property("fabric_api")}")
 
@@ -98,9 +113,13 @@ dependencies {
 }
 
 java {
-    // All currently-targeted MC versions (1.21.1 – 1.21.11) use Java 21.
-    // Java 25 is reserved for the future 26.x lifecycle phase.
-    toolchain.languageVersion.set(JavaLanguageVersion.of(21))
+    // 1.21.x uses Java 21; 26.x requires Java 25 (Mojmap ecosystem break).
+    toolchain.languageVersion.set(
+        if (stonecutter.current.parsed matches ">=26")
+            JavaLanguageVersion.of(25)
+        else
+            JavaLanguageVersion.of(21)
+    )
 }
 
 base {
@@ -126,6 +145,13 @@ tasks {
         val clothConfigDep = (project.findProperty("cloth_config_dep")
             ?: project.findProperty("cloth_config")
             ?: "0").toString()
+        // Minimum Java version advertised in fabric.mod.json. 26.x requires
+        // Java 25; 1.21.x series requires Java 21.
+        val javaDep = if (stonecutter.current.parsed matches ">=26") "25" else "21"
+        // Minimum Fabric Loader version for this MC series.
+        val fabricloaderDep = (project.findProperty("fabricloader_dep")
+            ?: if (stonecutter.current.parsed matches ">=26") "0.19.0" else "0.16.10"
+            ).toString()
         // Per-build Minecraft dependency range — declared in
         // versions/<mc>/gradle.properties so each Stonecutter target advertises
         // the patch-version window its bytecode is compatible with. See
@@ -152,6 +178,7 @@ tasks {
             ",\n    \"LeafLitterBlockMixin\""
         else
             ""
+        val mixinJavaLevel = if (stonecutter.current.parsed matches ">=26") "JAVA_25" else "JAVA_21"
         // Recipe ingredient codec divergence between 1.21.3 and 1.21.4:
         //   * 1.21 / 1.21.1 / 1.21.2 / 1.21.3 — the `key.<symbol>` value MUST
         //     be the object form `{"item": "<id>"}`. A plain string is
@@ -178,7 +205,10 @@ tasks {
         inputs.property("minecraft", minecraft)
         inputs.property("cloth_config_dep", clothConfigDep)
         inputs.property("minecraft_dep", minecraftDep)
+        inputs.property("java_dep", javaDep)
+        inputs.property("fabricloader_dep", fabricloaderDep)
         inputs.property("leaf_litter_mixin_entry", leafLitterMixinEntry)
+        inputs.property("mixin_java_level", mixinJavaLevel)
         inputs.property("fern_ingredient", fernIngredient)
         inputs.property("short_grass_ingredient", shortGrassIngredient)
         inputs.property("short_dry_grass_ingredient", shortDryGrassIngredient)
@@ -189,6 +219,8 @@ tasks {
                     "minecraft" to minecraft,
                     "cloth_config_dep" to clothConfigDep,
                     "minecraft_dep" to minecraftDep,
+                    "java_dep" to javaDep,
+                    "fabricloader_dep" to fabricloaderDep,
                 ),
             )
         }
@@ -201,6 +233,7 @@ tasks {
             expand(
                 mapOf(
                     "leaf_litter_mixin_entry" to leafLitterMixinEntry,
+                    "mixin_java_level" to mixinJavaLevel,
                 ),
             )
         }
@@ -233,5 +266,29 @@ tasks {
     // tests executed).
     test {
         useJUnitPlatform()
+        // 26.x uses identity mappings (official == named). Without
+        // fabric.remapClasspathFile, Fabric Loader defaults to 'official'
+        // runtime namespace, which mismatches class tweakers that declare
+        // 'named'. Supplying an empty file signals dev-mode + named namespace
+        // without listing any jars for actual remapping.
+        if (stonecutter.current.parsed matches ">=26") {
+            val remapFile = layout.buildDirectory.file("tmp/remapClasspath.txt").get().asFile
+            doFirst {
+                remapFile.parentFile.mkdirs()
+                remapFile.writeText("")
+            }
+            jvmArgs(
+                "-Dfabric.remapClasspathFile=${remapFile.absolutePath}",
+                "-Dfabric.development=true",
+                // Identity mapping: official names == named names. Tell Loader
+                // the runtime namespace is 'named' so Fabric API class tweakers
+                // (which declare namespace 'named') don't throw
+                // ClassTweakerFormatException on startup.
+                "-Dfabric.runtimeMappingNamespace=named",
+                // Byte Buddy (used by Mockito) officially supports up to Java 22.
+                // 26.x uses Java 25 — experimental flag lifts the version guard.
+                "-Dnet.bytebuddy.experimental=true",
+            )
+        }
     }
 }

@@ -10,8 +10,13 @@ import me.shedaniel.clothconfig2.api.ConfigCategory;
 import me.shedaniel.clothconfig2.api.ConfigEntryBuilder;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+//? if >=26 {
+/*import net.minecraft.client.resources.language.I18n;
+import net.minecraft.network.chat.Component;*/
+//?} else {
 import net.minecraft.client.resource.language.I18n;
 import net.minecraft.text.Text;
+//?}
 
 @Environment(EnvType.CLIENT)
 public class ModMenuIntegration implements ModMenuApi {
@@ -26,8 +31,20 @@ public class ModMenuIntegration implements ModMenuApi {
      * inside this {@code @Environment(EnvType.CLIENT)} class confines the
      * client-only dependency to the client side.
      */
+    //? if >=26 {
+    /*private static net.minecraft.network.chat.Component tr(String key) { return net.minecraft.network.chat.Component.translatable(key); }
+    private static net.minecraft.network.chat.Component lt(String s) { return net.minecraft.network.chat.Component.literal(s); }*/
+    //?} else {
+    private static Text tr(String key) { return Text.translatable(key); }
+    private static Text lt(String s) { return Text.literal(s); }
+    //?}
+
     private static String translateName(PlaceablePlants plant) {
+        //? if >=26 {
+        /*return I18n.get(plant.getBlock().getDescriptionId());*/
+        //?} else {
         return I18n.translate(plant.getBlock().getTranslationKey());
+        //?}
     }
 
     @Override
@@ -36,16 +53,16 @@ public class ModMenuIntegration implements ModMenuApi {
             PlaceableConfig config = AutoConfig.getConfigHolder(PlaceableConfig.class).getConfig();
             ConfigBuilder builder = ConfigBuilder.create()
                     .setParentScreen(parent)
-                    .setTitle(Text.translatable("mod.name"));
+                    .setTitle(tr("mod.name"));
             ConfigEntryBuilder entryBuilder = builder.entryBuilder();
 
             // General Category
             ConfigCategory genericCategory = builder.getOrCreateCategory(
-                    Text.translatable("config.placeable.category.general")
+                    tr("config.placeable.category.general")
             );
             genericCategory.addEntry(entryBuilder
                     .startBooleanToggle(
-                            Text.translatable("config.placeable.option.enable"),
+                            tr("config.placeable.option.enable"),
                             config.enable
                     )
                     .setDefaultValue(true)
@@ -54,11 +71,11 @@ public class ModMenuIntegration implements ModMenuApi {
             );
             genericCategory.addEntry(entryBuilder
                     .startBooleanToggle(
-                            Text.translatable("config.placeable.option.placed_without_top_rim"),
+                            tr("config.placeable.option.placed_without_top_rim"),
                             config.placedWithoutTopRim
                     )
                     .setTooltip(
-                            Text.translatable("config.placeable.option.placed_without_top_rim.tooltip")
+                            tr("config.placeable.option.placed_without_top_rim.tooltip")
                     )
                     .setDefaultValue(false)
                     .setSaveConsumer(newValue -> config.placedWithoutTopRim = newValue)
@@ -67,13 +84,13 @@ public class ModMenuIntegration implements ModMenuApi {
 
             // Allowed Plants Category
             ConfigCategory allowedPlantsCategory = builder.getOrCreateCategory(
-                    Text.translatable("config.placeable.category.allowed_plants")
+                    tr("config.placeable.category.allowed_plants")
             );
             for (PlaceablePlants plants : PlaceablePlants.values()) {
                 boolean current = config.allowPlaceablePlants.get(plants);
                 allowedPlantsCategory.addEntry(entryBuilder
                         .startBooleanToggle(
-                                Text.literal(translateName(plants)),
+                                lt(translateName(plants)),
                                 current
                         )
                         .setDefaultValue(true)

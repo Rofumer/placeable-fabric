@@ -3,9 +3,15 @@ package com.wennest.placeable.mixin;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.wennest.placeable.Placeable;
+//? if >=26 {
+/*import net.minecraft.server.level.ServerLevel;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.RandomSource;*/
+//?} else {
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.random.Random;
+//?}
 import org.spongepowered.asm.mixin.Mixin;
 
 /**
@@ -53,7 +59,11 @@ import org.spongepowered.asm.mixin.Mixin;
  * counter is always restored. Loom and Fabric API ship MixinExtras at
  * runtime; no extra dependency declaration is needed.
  */
+//? if >=26 {
+/*@Mixin(targets = "net.minecraft.world.level.block.state.BlockBehaviour$BlockStateBase")*/
+//?} else {
 @Mixin(targets = "net.minecraft.block.AbstractBlock$AbstractBlockState")
+//?}
 public abstract class AbstractBlockStateNaturalTickMixin {
 
     /**
@@ -66,7 +76,11 @@ public abstract class AbstractBlockStateNaturalTickMixin {
      */
     @WrapMethod(method = "randomTick")
     private void placeable$wrapRandomTick(
+            //? if >=26 {
+            /*ServerLevel world, BlockPos pos, RandomSource random,*/
+            //?} else {
             ServerWorld world, BlockPos pos, Random random,
+            //?}
             Operation<Void> original) {
         Placeable.enterNaturalTick();
         try {
@@ -87,9 +101,17 @@ public abstract class AbstractBlockStateNaturalTickMixin {
      * drive e.g., big-dripleaf upgrowth, sugar-cane scheduled-grow paths,
      * and any future scheduled-tick plant logic.
      */
+    //? if >=26 {
+    /*@WrapMethod(method = "tick")*/
+    //?} else {
     @WrapMethod(method = "scheduledTick")
+    //?}
     private void placeable$wrapScheduledTick(
+            //? if >=26 {
+            /*ServerLevel world, BlockPos pos, RandomSource random,*/
+            //?} else {
             ServerWorld world, BlockPos pos, Random random,
+            //?}
             Operation<Void> original) {
         Placeable.enterNaturalTick();
         try {

@@ -1,6 +1,16 @@
 package com.wennest.placeable.mixin;
 
 import com.wennest.placeable.Placeable;
+//? if >=26 {
+/*import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.MushroomBlock;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.LevelReader;*/
+//?} else {
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.MushroomPlantBlock;
@@ -9,6 +19,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.WorldView;
+//?}
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -38,7 +49,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
  * self-contained (no super-call to {@code PlantBlock}), so
  * {@link PlantBlockMixin} does not transitively cover this block.
  */
+//? if >=26 {
+/*@Mixin(MushroomBlock.class)*/
+//?} else {
 @Mixin(MushroomPlantBlock.class)
+//?}
 public class MushroomPlantBlockMixin {
 
     /**
@@ -48,8 +63,13 @@ public class MushroomPlantBlockMixin {
      * {@code randomTick} hook below still gates SPREAD on light &lt; 13 to
      * keep natural ecology vanilla.
      */
+    //? if >=26 {
+    /*@Inject(method = "canSurvive", at = @At("HEAD"), cancellable = true)
+    public void placeable$canPlantAnywhere(BlockState blockState, LevelReader world, BlockPos blockPos, CallbackInfoReturnable<Boolean> cir) {*/
+    //?} else {
     @Inject(method = "canPlaceAt", at = @At("HEAD"), cancellable = true)
     public void placeable$canPlantAnywhere(BlockState blockState, WorldView world, BlockPos blockPos, CallbackInfoReturnable<Boolean> cir) {
+    //?}
         // Defer to vanilla during worldgen and inside natural-tick frames.
         // Combined with AbstractBlockStateNaturalTickMixin, this defers any
         // canPlaceAt call originating from inside vanilla mushroom spread
@@ -82,7 +102,11 @@ public class MushroomPlantBlockMixin {
      * surfaces.
      */
     @Inject(method = "randomTick", at = @At("HEAD"), cancellable = true)
+    //? if >=26 {
+    /*public void placeable$randomTickMixin(BlockState blockState, ServerLevel world, BlockPos blockPos, RandomSource random, CallbackInfo ci) {*/
+    //?} else {
     public void placeable$randomTickMixin(BlockState blockState, ServerWorld world, BlockPos blockPos, Random random, CallbackInfo ci) {
+    //?}
         if (Placeable.isDisabled(blockState)) {
             return;
         }
@@ -91,8 +115,13 @@ public class MushroomPlantBlockMixin {
         // vanilla mushroom-grow block AND ambient light is bright (>=13),
         // there is no chance of vanilla spread happening anyway — bail
         // early, leaving the mushroom in place but inert.
+        //? if >=26 {
+        /*if (!world.getBlockState(blockPos.offset(0, -1, 0)).is(BlockTags.OVERRIDES_MUSHROOM_LIGHT_REQUIREMENT)
+                && world.getRawBrightness(blockPos, 0) >= 13) {*/
+        //?} else {
         if (!world.getBlockState(blockPos.add(0, -1, 0)).isIn(BlockTags.MUSHROOM_GROW_BLOCK)
                 && world.getBaseLightLevel(blockPos, 0) >= 13) {
+        //?}
             ci.cancel();
             return;
         }
@@ -102,9 +131,15 @@ public class MushroomPlantBlockMixin {
             // Vanilla overcrowding check: if 5+ mushrooms already exist in
             // the 9x3x9 box around this one, do not spread.
             int i = 5;
+            //? if >=26 {
+            /*for (BlockPos targetBlockPos : BlockPos.betweenClosed(blockPos.offset(-4, -1, -4), blockPos.offset(4, 1, 4))) {
+                if (world.getBlockState(targetBlockPos).is(Blocks.BROWN_MUSHROOM)
+                        || world.getBlockState(targetBlockPos).is(Blocks.RED_MUSHROOM)) {*/
+            //?} else {
             for (BlockPos targetBlockPos : BlockPos.iterate(blockPos.add(-4, -1, -4), blockPos.add(4, 1, 4))) {
                 if (world.getBlockState(targetBlockPos).isOf(Blocks.BROWN_MUSHROOM)
                         || world.getBlockState(targetBlockPos).isOf(Blocks.RED_MUSHROOM)) {
+            //?}
                     --i;
                     if (i <= 0) {
                         ci.cancel();
@@ -118,8 +153,24 @@ public class MushroomPlantBlockMixin {
             // is air, (b) state.canPlaceAt — guarded by the natural-tick
             // flag so it sees only vanilla rules, (c) the underneath block
             // is grow-tagged OR light < 13.
+            //? if >=26 {
+            /*BlockPos randomBlockPos = blockPos.offset(random.nextInt(3) - 1, random.nextInt(2) - random.nextInt(2), random.nextInt(3) - 1);*/
+            //?} else {
             BlockPos randomBlockPos = blockPos.add(random.nextInt(3) - 1, random.nextInt(2) - random.nextInt(2), random.nextInt(3) - 1);
+            //?}
             for (int k = 0; k < 4; ++k) {
+                //? if >=26 {
+                /*BlockPos underBlockPos = randomBlockPos.offset(0, -1, 0);
+                BlockState underBlockState = world.getBlockState(underBlockPos);
+                if (world.isEmptyBlock(randomBlockPos)
+                        && blockState.canSurvive(world, randomBlockPos)
+                        && (underBlockState.is(BlockTags.OVERRIDES_MUSHROOM_LIGHT_REQUIREMENT) || world.getRawBrightness(randomBlockPos, 0) < 13)
+                ) {
+                    blockPos = randomBlockPos;
+                }
+
+                randomBlockPos = blockPos.offset(random.nextInt(3) - 1, random.nextInt(2) - random.nextInt(2), random.nextInt(3) - 1);*/
+                //?} else {
                 BlockPos underBlockPos = randomBlockPos.add(0, -1, 0);
                 BlockState underBlockState = world.getBlockState(underBlockPos);
                 if (world.isAir(randomBlockPos)
@@ -130,9 +181,20 @@ public class MushroomPlantBlockMixin {
                 }
 
                 randomBlockPos = blockPos.add(random.nextInt(3) - 1, random.nextInt(2) - random.nextInt(2), random.nextInt(3) - 1);
+                //?}
             }
 
             // Final placement attempt at the random-walked position.
+            //? if >=26 {
+            /*BlockPos underBlockPos = randomBlockPos.offset(0, -1, 0);
+            BlockState underBlockState = world.getBlockState(underBlockPos);
+            if (world.isEmptyBlock(randomBlockPos)
+                    && blockState.canSurvive(world, randomBlockPos)
+                    && (underBlockState.is(BlockTags.OVERRIDES_MUSHROOM_LIGHT_REQUIREMENT) || world.getRawBrightness(randomBlockPos, 0) < 13)
+            ) {
+                world.setBlock(randomBlockPos, blockState, 2);
+            }*/
+            //?} else {
             BlockPos underBlockPos = randomBlockPos.add(0, -1, 0);
             BlockState underBlockState = world.getBlockState(underBlockPos);
             if (world.isAir(randomBlockPos)
@@ -141,6 +203,7 @@ public class MushroomPlantBlockMixin {
             ) {
                 world.setBlockState(randomBlockPos, blockState, 2);
             }
+            //?}
         }
 
         // Always cancel the vanilla randomTick — this mixin has fully taken

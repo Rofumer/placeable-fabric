@@ -16,6 +16,7 @@ a tested artifact.
 | 1.21.5     | first-class | `1.21.5+build.1`     | "Spring to Life" — adds BUSH, FIREFLY_BUSH, WILDFLOWERS, SHORT_DRY_GRASS, TALL_DRY_GRASS, CACTUS_FLOWER. Renames `BambooSaplingBlock` → `BambooShootBlock`. Default Stonecutter active version.                                                                |
 | 1.21.8     | first-class | `1.21.8+build.1`     | Stable mid-series; no plant-API drift relative to 1.21.5.                                                                                                                                                                                                      |
 | 1.21.11    | first-class | `1.21.11+build.5`    | Final 1.21 series version. "Mounts of Mayhem".                                                                                                                                                                                                                 |
+| 26.1.2     | first-class | Mojmap (no Yarn)     | 2026 year-based versioning. Mojang official mappings; Java 25; no Yarn. Uses `//? if >=26` Stonecutter conditionals throughout — see "Why a separate 26.1.2 build?" below.                                                                                     |
 
 ## Per-version compatibility map
 
@@ -37,6 +38,7 @@ CurseForge "supported versions" list per release entry.
 | 1.21.5    | Spring to Life      | 1.21.5                       | `1.21.5`                            | `>=1.21.5- <1.21.6`                   |
 | 1.21.8    | Chase the Skies     | 1.21.6, 1.21.7, 1.21.8       | `1.21.6,1.21.7,1.21.8`              | `>=1.21.6- <1.21.9`                   |
 | 1.21.11   | Mounts of Mayhem ** | 1.21.9, 1.21.10, 1.21.11     | `1.21.9,1.21.10,1.21.11`            | `>=1.21.9- <1.22`                     |
+| 26.1.2    | 2026 (year-based)   | 26.1.2                       | `26.1.2`                            | `>=26.1.2- <26.2`                     |
 
 \* The 1.21.1 jar is bytecode-compatible across 1.21 → 1.21.3 because the
 plant Block roster is unchanged between Tricky Trials and the pre-Bundles
@@ -103,9 +105,8 @@ extend an existing jar's compat range. The procedure is:
 
 ## Versions explicitly OUT OF SCOPE for this mod's lifecycle
 
-| MC version | Status       | Reason                                                                                                                                          |
-|------------|--------------|-------------------------------------------------------------------------------------------------------------------------------------------------|
-| 26.1+      | OUT OF SCOPE | Fabric 26.1 is a fundamental break: Mojmap (no Yarn), Java 25, new Loom plugin ID, no compat layer with 1.21.x. Tracked as a separate future project lifecycle. |
+No versions currently out of scope — 26.1.2 was successfully ported. Future
+year-based MC versions (26.2+) will be assessed when released.
 
 ## Upgrade-new-MC-version checklist
 
@@ -177,19 +178,18 @@ set. The order matters — earlier steps unblock later ones.
 16. Push the tag; CI (`mc-publish` workflow) handles Modrinth, CurseForge, and
     GitHub Releases.
 
-## Reference: 26.x / Mojmap migration plan (deferred)
+## Reference: 26.x / Mojmap migration (completed)
 
-26.x represents a fundamental ecosystem break. The 1.21 series mod will NOT
-receive a 26.x port directly — instead a separate parallel project lifecycle
-should:
+26.x support was added as a first-class Stonecutter target in the same
+repository, using `//? if >=26` conditionals throughout the source tree.
+Key changes made:
 
-1. Branch the repository into `26.x-mojmap`.
-2. Replace Yarn `net.minecraft.*` references with Mojmap equivalents.
-3. Migrate `fabric-loom` plugin ID to `net.fabricmc.fabric-loom`.
-4. Replace `modImplementation` with `implementation` and `remapJar` with `jar`.
-5. Update Java target from 21 to 25.
-6. Adapt to renamed Fabric API symbols (e.g., `ItemGroupEvents` →
-   `CreativeModeTabEvents`).
-
-This is deferred. Re-evaluate when the player base for 1.21.x drops below
-maintenance threshold.
+1. `versions/26.1.2/gradle.properties` — no `yarn_mappings` property triggers
+   `loom.officialMojangMappings()` in `build.gradle.kts`.
+2. All Yarn `net.minecraft.block.*` → Mojmap `net.minecraft.world.level.block.*`
+   imports wrapped in `//? if >=26` conditionals.
+3. Java 25 toolchain selected via `stonecutter.current.parsed matches ">=26"`.
+4. `canPlaceAt` → `canSurvive`, `WorldView` → `LevelReader`, `ServerWorld` →
+   `ServerLevel`, `Random` → `RandomSource` throughout all mixin files.
+5. Mixin target for `AbstractBlockStateNaturalTickMixin` changed from
+   `AbstractBlock$AbstractBlockState` to `BlockBehaviour$BlockStateBase`.

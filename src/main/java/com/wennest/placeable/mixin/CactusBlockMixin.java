@@ -1,6 +1,19 @@
 package com.wennest.placeable.mixin;
 
 import com.wennest.placeable.Placeable;
+//? if >=26 {
+/*import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.CactusBlock;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.FluidTags;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.EmptyBlockGetter;
+import net.minecraft.world.level.LevelReader;*/
+//?} else {
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.CactusBlock;
@@ -12,6 +25,7 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.EmptyBlockView;
 import net.minecraft.world.WorldView;
+//?}
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -54,8 +68,13 @@ public class CactusBlockMixin {
      * so the cactus-stack short-circuit cannot bypass worldgen / natural-tick
      * deferral.
      */
+    //? if >=26 {
+    /*@Inject(method = "canSurvive", at = @At("HEAD"), cancellable = true)
+    public void placeable$canPlantAnywhere(BlockState blockState, LevelReader world, BlockPos blockPos, CallbackInfoReturnable<Boolean> cir) {*/
+    //?} else {
     @Inject(method = "canPlaceAt", at = @At("HEAD"), cancellable = true)
     public void placeable$canPlantAnywhere(BlockState blockState, WorldView world, BlockPos blockPos, CallbackInfoReturnable<Boolean> cir) {
+    //?}
         // Defer to vanilla during worldgen and inside natural-tick frames.
         // MUST run before the cactus-on-cactus and isValidFloor branches —
         // those branches can call setReturnValue(true), which would widen
@@ -74,21 +93,36 @@ public class CactusBlockMixin {
         // tick. Bail to the vanilla canPlaceAt, which will return false for
         // these positions. This is genuine cactus physics — the mod relaxes
         // WHERE cactus can stand, not whether it survives.
+        //? if >=26 {
+        /*for (Direction direction : Direction.Plane.HORIZONTAL) {
+            BlockPos neighbourPos = blockPos.relative(direction);
+            BlockState neighbourState = world.getBlockState(neighbourPos);
+            if (neighbourState.isSolidRender()
+                    || neighbourState.canOcclude()
+                    || world.getFluidState(neighbourPos).is(FluidTags.LAVA)) {*/
+        //?} else {
         for (Direction direction : Direction.Type.HORIZONTAL) {
             BlockPos neighbourPos = blockPos.offset(direction);
             BlockState neighbourState = world.getBlockState(neighbourPos);
             if (neighbourState.isSolidBlock(EmptyBlockView.INSTANCE, BlockPos.ORIGIN)
                     || neighbourState.isOpaque()
                     || world.getFluidState(neighbourPos).isIn(FluidTags.LAVA)) {
+        //?}
                 return;
             }
         }
 
         // Stack-on-cactus (vanilla path) OR mod-relaxed valid floor, AND
         // the block above must be fluid-free (water would destroy cactus).
+        //? if >=26 {
+        /*BlockState underBlockState = world.getBlockState(blockPos.below());
+        if ((underBlockState.is(Blocks.CACTUS) || Placeable.isValidFloor(world, blockPos))
+                && world.getFluidState(blockPos.above()).isEmpty()) {*/
+        //?} else {
         BlockState underBlockState = world.getBlockState(blockPos.down());
         if ((underBlockState.isOf(Blocks.CACTUS) || Placeable.isValidFloor(world, blockPos))
                 && world.getFluidState(blockPos.up()).isEmpty()) {
+        //?}
             cir.setReturnValue(true);
         }
     }
@@ -99,7 +133,11 @@ public class CactusBlockMixin {
      * and aborts the random tick if the foundation isn't sand.
      */
     @Inject(method = "randomTick", at = @At("HEAD"), cancellable = true)
+    //? if >=26 {
+    /*public void placeable$randomTickMixin(BlockState blockState, ServerLevel world, BlockPos blockPos, RandomSource random, CallbackInfo ci) {*/
+    //?} else {
     public void placeable$randomTickMixin(BlockState blockState, ServerWorld world, BlockPos blockPos, Random random, CallbackInfo ci) {
+    //?}
         if (Placeable.isDisabled(blockState)) {
             return;
         }
@@ -109,13 +147,23 @@ public class CactusBlockMixin {
         // tall, so look at most 2 blocks down before settling on the ground
         // search position.
         int i = 1;
+        //? if >=26 {
+        /*while (i < 3 && world.getBlockState(blockPos.below(i)).is(Blocks.CACTUS)) {*/
+        //?} else {
         while (i < 3 && world.getBlockState(blockPos.down(i)).isOf(Blocks.CACTUS)) {
+        //?}
             ++i;
         }
 
+        //? if >=26 {
+        /*BlockPos groundBlockPos = blockPos.below(i);
+        BlockState groundBlockState = world.getBlockState(groundBlockPos);
+        if (!groundBlockState.is(BlockTags.SAND)) {*/
+        //?} else {
         BlockPos groundBlockPos = blockPos.down(i);
         BlockState groundBlockState = world.getBlockState(groundBlockPos);
         if (!groundBlockState.isIn(BlockTags.SAND)) {
+        //?}
             // Cancel growth — but leave the existing cactus standing. This
             // is what makes mod-placed cactus on cobblestone "decorative":
             // it persists but never grows into an invalid stacked state.

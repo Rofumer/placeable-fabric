@@ -2,10 +2,17 @@ package com.wennest.placeable;
 
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
+//? if >=26 {
+/*import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.BlockGetter;*/
+//?} else {
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.BlockView;
+//?}
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -92,12 +99,20 @@ class IsValidFloorTest {
     @Test
     void isValidFloor_returnsFalse_whenFloorIsAir_evenWithPlacedWithoutTopRim() {
         CONFIG.placedWithoutTopRim = true;
+        //? if >=26 {
+        /*BlockState air = Blocks.AIR.defaultBlockState();*/
+        //?} else {
         BlockState air = Blocks.AIR.getDefaultState();
+        //?}
         // BlockView and BlockPos are not consulted on the air branch — the
         // method should reject before ever calling Block.hasTopRim — so a
         // pure mock is sufficient and intentional (proves the air-reject
         // happens BEFORE the world-touching path).
+        //? if >=26 {
+        /*BlockGetter world = mock(BlockGetter.class);*/
+        //?} else {
         BlockView world = mock(BlockView.class);
+        //?}
         BlockPos pos = mock(BlockPos.class);
         assertFalse(Placeable.isValidFloor(air, world, pos),
                 "air floor must NEVER be a valid placement surface, even "
@@ -112,8 +127,13 @@ class IsValidFloorTest {
     @Test
     void isValidFloor_returnsFalse_whenFloorIsAir_withDefaultConfig() {
         // Default: placedWithoutTopRim=false (set by @BeforeEach).
+        //? if >=26 {
+        /*BlockState air = Blocks.AIR.defaultBlockState();
+        BlockGetter world = mock(BlockGetter.class);*/
+        //?} else {
         BlockState air = Blocks.AIR.getDefaultState();
         BlockView world = mock(BlockView.class);
+        //?}
         BlockPos pos = mock(BlockPos.class);
         assertFalse(Placeable.isValidFloor(air, world, pos),
                 "air floor must always be rejected regardless of config flag");
@@ -128,16 +148,28 @@ class IsValidFloorTest {
      */
     @Test
     void isValidFloor_returnsTrue_whenFloorHasTopRim() {
+        //? if >=26 {
+        /*BlockState stone = Blocks.STONE.defaultBlockState();*/
+        //?} else {
         BlockState stone = Blocks.STONE.getDefaultState();
+        //?}
         // Block.hasTopRim consults the world view to read the block's
         // collision shape. Use a real (origin) BlockPos so it isn't a mock
         // that might NPE inside Block#hasTopRim.
+        //? if >=26 {
+        /*BlockPos origin = BlockPos.ZERO;*/
+        //?} else {
         BlockPos origin = BlockPos.ORIGIN;
+        //?}
         // Build a lightweight BlockView that returns the stone state at
         // origin so hasTopRim can probe its shape. Mockito's default-answer
         // strategy returns null/0 for unmocked methods which would NPE
         // inside hasTopRim's shape lookup; stub the minimum.
+        //? if >=26 {
+        /*BlockGetter world = mock(BlockGetter.class);*/
+        //?} else {
         BlockView world = mock(BlockView.class);
+        //?}
         org.mockito.Mockito.when(world.getBlockState(origin)).thenReturn(stone);
         assertTrue(Placeable.isValidFloor(stone, world, origin),
                 "a full top-rim block (stone) must be a valid floor");
@@ -162,11 +194,16 @@ class IsValidFloorTest {
     @Test
     void isValidFloor_returnsTrue_anyNonAirFloor_whenPlacedWithoutTopRim() {
         CONFIG.placedWithoutTopRim = true;
+        //? if >=26 {
+        /*BlockState stone = Blocks.STONE.defaultBlockState();
+        BlockGetter world = mock(BlockGetter.class);*/
+        //?} else {
         BlockState stone = Blocks.STONE.getDefaultState();
         // No need to stub world.getBlockState — placedWithoutTopRim=true
         // means the (withoutTopRim || hasTopRim) clause short-circuits on
         // `withoutTopRim` first; Block.hasTopRim is never invoked.
         BlockView world = mock(BlockView.class);
+        //?}
         BlockPos pos = mock(BlockPos.class);
         assertTrue(Placeable.isValidFloor(stone, world, pos),
                 "with placedWithoutTopRim=true any non-air floor must pass");

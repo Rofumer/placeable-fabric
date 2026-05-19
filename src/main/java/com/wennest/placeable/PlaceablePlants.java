@@ -1,8 +1,13 @@
 package com.wennest.placeable;
 
 import lombok.Getter;
+//? if >=26 {
+/*import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;*/
+//?} else {
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
+//?}
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
