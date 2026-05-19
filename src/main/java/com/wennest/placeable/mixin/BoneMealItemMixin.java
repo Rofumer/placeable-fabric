@@ -4,18 +4,18 @@ import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.wennest.placeable.Placeable;
 //? if >=26 {
-/*import net.minecraft.world.item.BoneMealItem;
+import net.minecraft.world.item.BoneMealItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.world.level.Level;*/
+import net.minecraft.world.level.Level;
 //?} else {
-import net.minecraft.item.BoneMealItem;
+/*import net.minecraft.item.BoneMealItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
-//?}
+*///?}
 import org.spongepowered.asm.mixin.Mixin;
 
 /**
@@ -85,7 +85,7 @@ public abstract class BoneMealItemMixin {
      * into {@code useOn}), so the wrap is omitted for >=26 entirely.
      */
     //? if <26 {
-    @WrapMethod(method = "useOnGround")
+    /*@WrapMethod(method = "useOnGround")
     private static boolean placeable$wrapUseOnGround(
             ItemStack stack, World world, BlockPos pos, Direction side,
             Operation<Boolean> original) {
@@ -100,7 +100,7 @@ public abstract class BoneMealItemMixin {
             Placeable.exitNaturalTick();
         }
     }
-    //?}
+    *///?}
 
     /**
      * Wraps the bone-meal fertilizable entry point — {@code useOnFertilizable}
@@ -118,16 +118,16 @@ public abstract class BoneMealItemMixin {
      * spread route goes through this vanilla method.
      */
     //? if >=26 {
-    /*@WrapMethod(method = "growCrop")
+    @WrapMethod(method = "growCrop")
     private static boolean placeable$wrapUseOnFertilizable(
             ItemStack stack, Level world, BlockPos pos,
-            Operation<Boolean> original) {*/
+            Operation<Boolean> original) {
     //?} else {
-    @WrapMethod(method = "useOnFertilizable")
+    /*@WrapMethod(method = "useOnFertilizable")
     private static boolean placeable$wrapUseOnFertilizable(
             ItemStack stack, World world, BlockPos pos,
             Operation<Boolean> original) {
-    //?}
+    *///?}
         Placeable.enterNaturalTick();
         try {
             return original.call(stack, world, pos);

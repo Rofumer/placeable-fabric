@@ -2,7 +2,7 @@ package com.wennest.placeable.mixin;
 
 import com.wennest.placeable.Placeable;
 //? if >=26 {
-/*import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SugarCaneBlock;
 import net.minecraft.world.level.material.FluidState;
@@ -12,9 +12,9 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.level.LevelReader;*/
+import net.minecraft.world.level.LevelReader;
 //?} else {
-import net.minecraft.block.BlockState;
+/*import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.SugarCaneBlock;
 import net.minecraft.fluid.FluidState;
@@ -25,7 +25,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.WorldView;
-//?}
+*///?}
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -58,12 +58,12 @@ public class SugarCaneBlockMixin {
      * relaxed-floor shape.
      */
     //? if >=26 {
-    /*@Inject(method = "canSurvive", at = @At("HEAD"), cancellable = true)
-    public void placeable$canPlantAnywhere(BlockState state, LevelReader world, BlockPos pos, CallbackInfoReturnable<Boolean> cir) {*/
+    @Inject(method = "canSurvive", at = @At("HEAD"), cancellable = true)
+    public void placeable$canPlantAnywhere(BlockState state, LevelReader world, BlockPos pos, CallbackInfoReturnable<Boolean> cir) {
     //?} else {
-    @Inject(method = "canPlaceAt", at = @At("HEAD"), cancellable = true)
+    /*@Inject(method = "canPlaceAt", at = @At("HEAD"), cancellable = true)
     public void placeable$canPlantAnywhere(BlockState state, WorldView world, BlockPos pos, CallbackInfoReturnable<Boolean> cir) {
-    //?}
+    *///?}
         if (Placeable.shouldBypass(world, pos)) return;
         if (Placeable.isDisabled(state)) return;
         if (Placeable.isValidFloor(world, pos)) {
@@ -78,49 +78,49 @@ public class SugarCaneBlockMixin {
      */
     @Inject(method = "randomTick", at = @At("HEAD"), cancellable = true)
     //? if >=26 {
-    /*public void randomTickMixin(BlockState blockState, ServerLevel world, BlockPos blockPos, RandomSource random, CallbackInfo ci) {*/
+    public void randomTickMixin(BlockState blockState, ServerLevel world, BlockPos blockPos, RandomSource random, CallbackInfo ci) {
     //?} else {
-    public void randomTickMixin(BlockState blockState, ServerWorld world, BlockPos blockPos, Random random, CallbackInfo ci) {
-    //?}
+    /*public void randomTickMixin(BlockState blockState, ServerWorld world, BlockPos blockPos, Random random, CallbackInfo ci) {
+    *///?}
         if (Placeable.isDisabled(blockState)) {
             return;
         }
 
         int i = 1;
         //? if >=26 {
-        /*while (i < 3 && world.getBlockState(blockPos.below(i)).is(Blocks.SUGAR_CANE)) {*/
+        while (i < 3 && world.getBlockState(blockPos.below(i)).is(Blocks.SUGAR_CANE)) {
         //?} else {
-        while (i < 3 && world.getBlockState(blockPos.down(i)).isOf(Blocks.SUGAR_CANE)) {
-        //?}
+        /*while (i < 3 && world.getBlockState(blockPos.down(i)).isOf(Blocks.SUGAR_CANE)) {
+        *///?}
             ++i;
         }
 
         //? if >=26 {
-        /*BlockPos groundBlockPos = blockPos.below(i);
+        BlockPos groundBlockPos = blockPos.below(i);
         BlockState groundBlockState = world.getBlockState(groundBlockPos);
-        if (!groundBlockState.is(BlockTags.DIRT) && !groundBlockState.is(BlockTags.SAND)) {*/
+        if (!groundBlockState.is(BlockTags.DIRT) && !groundBlockState.is(BlockTags.SAND)) {
         //?} else {
-        BlockPos groundBlockPos = blockPos.down(i);
+        /*BlockPos groundBlockPos = blockPos.down(i);
         BlockState groundBlockState = world.getBlockState(groundBlockPos);
         if (!groundBlockState.isIn(BlockTags.DIRT) && !groundBlockState.isIn(BlockTags.SAND)) {
-        //?}
+        *///?}
             ci.cancel();
             return;
         }
 
         //? if >=26 {
-        /*for (Direction direction : Direction.Plane.HORIZONTAL) {
+        for (Direction direction : Direction.Plane.HORIZONTAL) {
             BlockState targetBlockState = world.getBlockState(groundBlockPos.relative(direction));
             FluidState targetFluidState = world.getFluidState(groundBlockPos.relative(direction));
 
-            if (targetFluidState.is(FluidTags.WATER) || targetBlockState.is(Blocks.FROSTED_ICE)) {*/
+            if (targetFluidState.is(FluidTags.WATER) || targetBlockState.is(Blocks.FROSTED_ICE)) {
         //?} else {
-        for (Direction direction : Direction.Type.HORIZONTAL) {
+        /*for (Direction direction : Direction.Type.HORIZONTAL) {
             BlockState targetBlockState = world.getBlockState(groundBlockPos.offset(direction));
             FluidState targetFluidState = world.getFluidState(groundBlockPos.offset(direction));
 
             if (targetFluidState.isIn(FluidTags.WATER) || targetBlockState.isOf(Blocks.FROSTED_ICE)) {
-        //?}
+        *///?}
                 return;
             }
         }

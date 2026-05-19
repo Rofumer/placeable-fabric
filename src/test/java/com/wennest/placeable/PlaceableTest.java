@@ -1,14 +1,14 @@
 package com.wennest.placeable;
 
 //? if >=26 {
-/*import net.minecraft.core.BlockPos;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelReader;*/
+import net.minecraft.world.level.LevelReader;
 //?} else {
-import net.minecraft.util.math.BlockPos;
+/*import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
-//?}
+*///?}
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
@@ -82,10 +82,10 @@ class PlaceableTest {
         // worldgen's ChunkRegion which extends StructureWorldAccess but
         // not World.
         //? if >=26 {
-        /*LevelReader fakeWorldgen = mock(LevelReader.class);*/
+        LevelReader fakeWorldgen = mock(LevelReader.class);
         //?} else {
-        WorldView fakeWorldgen = mock(WorldView.class);
-        //?}
+        /*WorldView fakeWorldgen = mock(WorldView.class);
+        *///?}
         BlockPos pos = mock(BlockPos.class);
         assertTrue(Placeable.shouldBypass(fakeWorldgen, pos),
                 "non-World WorldView must bypass (worldgen guard)");
@@ -96,10 +96,10 @@ class PlaceableTest {
         // mock(World.class) gives a World subtype mock so the instanceof
         // branch falls through to the natural-tick check.
         //? if >=26 {
-        /*Level world = mock(Level.class);*/
+        Level world = mock(Level.class);
         //?} else {
-        World world = mock(World.class);
-        //?}
+        /*World world = mock(World.class);
+        *///?}
         BlockPos pos = mock(BlockPos.class);
         Placeable.enterNaturalTick();
         try {
@@ -113,10 +113,10 @@ class PlaceableTest {
     @Test
     void shouldBypass_worldOutsideNaturalTick_returnsFalse() {
         //? if >=26 {
-        /*Level world = mock(Level.class);*/
+        Level world = mock(Level.class);
         //?} else {
-        World world = mock(World.class);
-        //?}
+        /*World world = mock(World.class);
+        *///?}
         BlockPos pos = mock(BlockPos.class);
         assertFalse(Placeable.shouldBypass(world, pos),
                 "player action on a World subtype must NOT bypass");
@@ -192,10 +192,10 @@ class PlaceableTest {
     @Test
     void boneMealMixinBracket_keepsShouldBypassTrueAcrossInnerCanPlaceAt() {
         //? if >=26 {
-        /*Level fakeWorld = mock(Level.class);*/
+        Level fakeWorld = mock(Level.class);
         //?} else {
-        World fakeWorld = mock(World.class);
-        //?}
+        /*World fakeWorld = mock(World.class);
+        *///?}
         BlockPos fakePos = mock(BlockPos.class);
         // Pre-condition: outside the bracket, a plain World does NOT bypass
         // — i.e., normal player-driven canPlaceAt calls still get the

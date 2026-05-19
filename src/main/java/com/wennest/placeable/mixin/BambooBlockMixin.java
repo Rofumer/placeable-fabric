@@ -2,7 +2,7 @@ package com.wennest.placeable.mixin;
 
 import com.wennest.placeable.Placeable;
 //? if >=26 {
-/*import net.minecraft.world.level.block.BambooStalkBlock;
+import net.minecraft.world.level.block.BambooStalkBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.Blocks;
@@ -11,9 +11,9 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.level.LevelReader;*/
+import net.minecraft.world.level.LevelReader;
 //?} else {
-import net.minecraft.block.BambooBlock;
+/*import net.minecraft.block.BambooBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -23,7 +23,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.WorldView;
-//?}
+*///?}
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -47,10 +47,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
  * shoot-first-then-stalk behavior on the wider floor set.
  */
 //? if >=26 {
-/*@Mixin(BambooStalkBlock.class)*/
+@Mixin(BambooStalkBlock.class)
 //?} else {
-@Mixin(BambooBlock.class)
-//?}
+/*@Mixin(BambooBlock.class)
+*///?}
 public class BambooBlockMixin {
 
     /**
@@ -71,12 +71,12 @@ public class BambooBlockMixin {
      * relaxed-floor shape.
      */
     //? if >=26 {
-    /*@Inject(method = "canSurvive", at = @At("HEAD"), cancellable = true)
-    public void placeable$canPlantAnywhere(BlockState state, LevelReader world, BlockPos pos,*/
+    @Inject(method = "canSurvive", at = @At("HEAD"), cancellable = true)
+    public void placeable$canPlantAnywhere(BlockState state, LevelReader world, BlockPos pos,
     //?} else {
-    @Inject(method = "canPlaceAt", at = @At("HEAD"), cancellable = true)
+    /*@Inject(method = "canPlaceAt", at = @At("HEAD"), cancellable = true)
     public void placeable$canPlantAnywhere(BlockState state, WorldView world, BlockPos pos,
-    //?}
+    *///?}
                                            CallbackInfoReturnable<Boolean> cir) {
         // Defer to vanilla during worldgen and inside natural-tick frames.
         if (Placeable.shouldBypass(world, pos)) return;
@@ -100,12 +100,12 @@ public class BambooBlockMixin {
      */
     @Inject(method = "randomTick", at = @At("HEAD"), cancellable = true)
     //? if >=26 {
-    /*public void placeable$randomTickMixin(BlockState state, ServerLevel world, BlockPos pos,
-                                          RandomSource random, CallbackInfo ci) {*/
+    public void placeable$randomTickMixin(BlockState state, ServerLevel world, BlockPos pos,
+                                          RandomSource random, CallbackInfo ci) {
     //?} else {
-    public void placeable$randomTickMixin(BlockState state, ServerWorld world, BlockPos pos,
+    /*public void placeable$randomTickMixin(BlockState state, ServerWorld world, BlockPos pos,
                                           Random random, CallbackInfo ci) {
-    //?}
+    *///?}
         if (Placeable.isDisabled(BAMBOO_KEY)) {
             return;
         }
@@ -113,20 +113,20 @@ public class BambooBlockMixin {
         // Walk down to the root of the stack to find the actual floor.
         int i = 1;
         //? if >=26 {
-        /*while (world.getBlockState(pos.below(i)).is(Blocks.BAMBOO)) {*/
+        while (world.getBlockState(pos.below(i)).is(Blocks.BAMBOO)) {
         //?} else {
-        while (world.getBlockState(pos.down(i)).isOf(Blocks.BAMBOO)) {
-        //?}
+        /*while (world.getBlockState(pos.down(i)).isOf(Blocks.BAMBOO)) {
+        *///?}
             i++;
         }
 
         //? if >=26 {
-        /*BlockState floor = world.getBlockState(pos.below(i));
-        if (!floor.is(BlockTags.SUPPORTS_BAMBOO)) {*/
+        BlockState floor = world.getBlockState(pos.below(i));
+        if (!floor.is(BlockTags.SUPPORTS_BAMBOO)) {
         //?} else {
-        BlockState floor = world.getBlockState(pos.down(i));
+        /*BlockState floor = world.getBlockState(pos.down(i));
         if (!floor.isIn(BlockTags.BAMBOO_PLANTABLE_ON)) {
-        //?}
+        *///?}
             // Cancel vanilla's growth body — this stalk was placed on a
             // mod-relaxed floor and must NOT propagate upward.
             ci.cancel();
@@ -143,29 +143,29 @@ public class BambooBlockMixin {
      * stomps another mixin's earlier decision.
      */
     //? if >=26 {
-    /*@Inject(method = "getStateForPlacement", at = @At("RETURN"), cancellable = true)
-    public void placeable$getPlacementStateMixin(BlockPlaceContext ctx,*/
+    @Inject(method = "getStateForPlacement", at = @At("RETURN"), cancellable = true)
+    public void placeable$getPlacementStateMixin(BlockPlaceContext ctx,
     //?} else {
-    @Inject(method = "getPlacementState", at = @At("RETURN"), cancellable = true)
+    /*@Inject(method = "getPlacementState", at = @At("RETURN"), cancellable = true)
     public void placeable$getPlacementStateMixin(ItemPlacementContext ctx,
-    //?}
+    *///?}
                                                  CallbackInfoReturnable<BlockState> cir) {
         // Do not stomp another mixin's / vanilla's existing placement.
         if (cir.getReturnValue() != null) return;
         // Defer to vanilla during worldgen and inside natural-tick frames.
         //? if >=26 {
-        /*if (Placeable.shouldBypass(ctx.getLevel(), ctx.getClickedPos())) return;
+        if (Placeable.shouldBypass(ctx.getLevel(), ctx.getClickedPos())) return;
         if (Placeable.isDisabled(BAMBOO_KEY)) return;
 
         if (Placeable.isValidFloor(ctx.getLevel(), ctx.getClickedPos())) {
-            cir.setReturnValue(BAMBOO_KEY.defaultBlockState());*/
+            cir.setReturnValue(BAMBOO_KEY.defaultBlockState());
         //?} else {
-        if (Placeable.shouldBypass(ctx.getWorld(), ctx.getBlockPos())) return;
+        /*if (Placeable.shouldBypass(ctx.getWorld(), ctx.getBlockPos())) return;
         if (Placeable.isDisabled(BAMBOO_KEY)) return;
 
         if (Placeable.isValidFloor(ctx.getWorld(), ctx.getBlockPos())) {
             cir.setReturnValue(BAMBOO_KEY.getDefaultState());
-        //?}
+        *///?}
         }
     }
 }

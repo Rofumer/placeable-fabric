@@ -2,16 +2,16 @@ package com.wennest.placeable.mixin;
 
 import com.wennest.placeable.Placeable;
 //? if >=26 {
-/*import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.CocoaBlock;
 import net.minecraft.world.level.block.SupportType;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.level.LevelReader;*/
+import net.minecraft.world.level.LevelReader;
 //?} else {
-import net.minecraft.block.BlockState;
+/*import net.minecraft.block.BlockState;
 import net.minecraft.block.CocoaBlock;
 import net.minecraft.block.SideShapeType;
 import net.minecraft.registry.tag.BlockTags;
@@ -19,7 +19,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.WorldView;
-//?}
+*///?}
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -27,10 +27,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 //? if >=26 {
-/*import static net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING;*/
+import static net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING;
 //?} else {
-import static net.minecraft.block.HorizontalFacingBlock.FACING;
-//?}
+/*import static net.minecraft.block.HorizontalFacingBlock.FACING;
+*///?}
 
 /**
  * Relaxes the placement rule of vanilla {@link CocoaBlock} so any block
@@ -60,12 +60,12 @@ public class CocoaBlockMixin {
      * natural-tick frames see vanilla behavior unchanged.
      */
     //? if >=26 {
-    /*@Inject(method = "canSurvive", at = @At("HEAD"), cancellable = true)
-    public void placeable$canPlantAnywhere(BlockState blockState, LevelReader world, BlockPos pos, CallbackInfoReturnable<Boolean> cir) {*/
+    @Inject(method = "canSurvive", at = @At("HEAD"), cancellable = true)
+    public void placeable$canPlantAnywhere(BlockState blockState, LevelReader world, BlockPos pos, CallbackInfoReturnable<Boolean> cir) {
     //?} else {
-    @Inject(method = "canPlaceAt", at = @At("HEAD"), cancellable = true)
+    /*@Inject(method = "canPlaceAt", at = @At("HEAD"), cancellable = true)
     public void placeable$canPlantAnywhere(BlockState blockState, WorldView world, BlockPos pos, CallbackInfoReturnable<Boolean> cir) {
-    //?}
+    *///?}
         // Defer to vanilla during worldgen and inside natural-tick frames.
         // MUST be the first statement: vanilla jungle-tree generation places
         // cocoa pods via TreeFeature, which eventually calls canPlaceAt on
@@ -85,12 +85,12 @@ public class CocoaBlockMixin {
         // expose a rigid solid face. Any block satisfying this is treated
         // as a valid attachment surface (mod relaxation).
         //? if >=26 {
-        /*BlockState faceBlockState = world.getBlockState(pos.relative(blockState.getValue(FACING)));
-        if (faceBlockState.isFaceSturdy(world, pos, blockState.getValue(FACING), SupportType.FULL)) {*/
+        BlockState faceBlockState = world.getBlockState(pos.relative(blockState.getValue(FACING)));
+        if (faceBlockState.isFaceSturdy(world, pos, blockState.getValue(FACING), SupportType.FULL)) {
         //?} else {
-        BlockState faceBlockState = world.getBlockState(pos.offset(blockState.get(FACING)));
+        /*BlockState faceBlockState = world.getBlockState(pos.offset(blockState.get(FACING)));
         if (faceBlockState.isSideSolid(world, pos, blockState.get(FACING), SideShapeType.RIGID)) {
-        //?}
+        *///?}
             cir.setReturnValue(true);
         }
     }
@@ -102,10 +102,10 @@ public class CocoaBlockMixin {
      */
     @Inject(method = "randomTick", at = @At("HEAD"), cancellable = true)
     //? if >=26 {
-    /*public void placeable$randomTickMixin(BlockState blockState, ServerLevel world, BlockPos blockPos, RandomSource random, CallbackInfo ci) {*/
+    public void placeable$randomTickMixin(BlockState blockState, ServerLevel world, BlockPos blockPos, RandomSource random, CallbackInfo ci) {
     //?} else {
-    public void placeable$randomTickMixin(BlockState blockState, ServerWorld world, BlockPos blockPos, Random random, CallbackInfo ci) {
-    //?}
+    /*public void placeable$randomTickMixin(BlockState blockState, ServerWorld world, BlockPos blockPos, Random random, CallbackInfo ci) {
+    *///?}
         if (Placeable.isDisabled(blockState)) {
             return;
         }
@@ -114,12 +114,12 @@ public class CocoaBlockMixin {
         // is not a jungle log, cancel growth — the cocoa stays at its
         // placed age forever (until broken or the host changes).
         //? if >=26 {
-        /*BlockState host = world.getBlockState(blockPos.relative(blockState.getValue(FACING)));
-        if (!host.is(BlockTags.JUNGLE_LOGS)) {*/
+        BlockState host = world.getBlockState(blockPos.relative(blockState.getValue(FACING)));
+        if (!host.is(BlockTags.JUNGLE_LOGS)) {
         //?} else {
-        BlockState host = world.getBlockState(blockPos.offset(blockState.get(FACING)));
+        /*BlockState host = world.getBlockState(blockPos.offset(blockState.get(FACING)));
         if (!host.isIn(BlockTags.JUNGLE_LOGS)) {
-        //?}
+        *///?}
             ci.cancel();
         }
     }

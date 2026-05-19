@@ -11,12 +11,12 @@ import me.shedaniel.clothconfig2.api.ConfigEntryBuilder;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 //? if >=26 {
-/*import net.minecraft.client.resources.language.I18n;
-import net.minecraft.network.chat.Component;*/
+import net.minecraft.client.resources.language.I18n;
+import net.minecraft.network.chat.Component;
 //?} else {
-import net.minecraft.client.resource.language.I18n;
+/*import net.minecraft.client.resource.language.I18n;
 import net.minecraft.text.Text;
-//?}
+*///?}
 
 @Environment(EnvType.CLIENT)
 public class ModMenuIntegration implements ModMenuApi {
@@ -32,19 +32,19 @@ public class ModMenuIntegration implements ModMenuApi {
      * client-only dependency to the client side.
      */
     //? if >=26 {
-    /*private static net.minecraft.network.chat.Component tr(String key) { return net.minecraft.network.chat.Component.translatable(key); }
-    private static net.minecraft.network.chat.Component lt(String s) { return net.minecraft.network.chat.Component.literal(s); }*/
+    private static net.minecraft.network.chat.Component tr(String key) { return net.minecraft.network.chat.Component.translatable(key); }
+    private static net.minecraft.network.chat.Component lt(String s) { return net.minecraft.network.chat.Component.literal(s); }
     //?} else {
-    private static Text tr(String key) { return Text.translatable(key); }
+    /*private static Text tr(String key) { return Text.translatable(key); }
     private static Text lt(String s) { return Text.literal(s); }
-    //?}
+    *///?}
 
     private static String translateName(PlaceablePlants plant) {
         //? if >=26 {
-        /*return I18n.get(plant.getBlock().getDescriptionId());*/
+        return I18n.get(plant.getBlock().getDescriptionId());
         //?} else {
-        return I18n.translate(plant.getBlock().getTranslationKey());
-        //?}
+        /*return I18n.translate(plant.getBlock().getTranslationKey());
+        *///?}
     }
 
     @Override

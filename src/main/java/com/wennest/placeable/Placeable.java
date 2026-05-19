@@ -5,7 +5,7 @@ import me.shedaniel.autoconfig.ConfigHolder;
 import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
 import net.fabricmc.api.ModInitializer;
 //? if >=26 {
-/*import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.tags.BlockTags;
@@ -13,9 +13,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelReader;*/
+import net.minecraft.world.level.LevelReader;
 //?} else {
-import net.minecraft.block.Block;
+/*import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.registry.tag.BlockTags;
@@ -23,7 +23,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
-//?}
+*///?}
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -165,15 +165,15 @@ public class Placeable implements ModInitializer {
      * @return {@code true} if the mod MUST defer to vanilla.
      */
     //? if >=26 {
-    /*public static boolean shouldBypass(LevelReader world, BlockPos pos) {
-        if (!(world instanceof Level)) return true;*/
+    public static boolean shouldBypass(LevelReader world, BlockPos pos) {
+        if (!(world instanceof Level)) return true;
     //?} else {
-    public static boolean shouldBypass(WorldView world, BlockPos pos) {
+    /*public static boolean shouldBypass(WorldView world, BlockPos pos) {
         // ChunkRegion (worldgen) does NOT extend World. ServerWorld /
         // ClientWorld DO extend World. The instanceof check is therefore the
         // exact predicate for "worldgen vs runtime".
         if (!(world instanceof World)) return true;
-    //?}
+    *///?}
         // Even at runtime, vanilla natural-tick frames must defer.
         return isNaturalTick();
     }
@@ -221,14 +221,14 @@ public class Placeable implements ModInitializer {
      * three accept conditions above.
      */
     //? if >=26 {
-    /*public static boolean isValidFloor(LevelReader world, BlockPos pos) {
+    public static boolean isValidFloor(LevelReader world, BlockPos pos) {
         return isValidFloor(world.getBlockState(pos.below()), world, pos.below());
-    }*/
+    }
     //?} else {
-    public static boolean isValidFloor(WorldView world, BlockPos pos) {
+    /*public static boolean isValidFloor(WorldView world, BlockPos pos) {
         return isValidFloor(world.getBlockState(pos.down()), world, pos.down());
     }
-    //?}
+    *///?}
 
     /**
      * Floor-validity rule with an explicit floor BlockState.
@@ -261,10 +261,10 @@ public class Placeable implements ModInitializer {
      * three accept conditions documented on the two-argument overload.
      */
     //? if >=26 {
-    /*public static boolean isValidFloor(BlockState floor, BlockGetter world, BlockPos pos) {*/
+    public static boolean isValidFloor(BlockState floor, BlockGetter world, BlockPos pos) {
     //?} else {
-    public static boolean isValidFloor(BlockState floor, BlockView world, BlockPos pos) {
-    //?}
+    /*public static boolean isValidFloor(BlockState floor, BlockView world, BlockPos pos) {
+    *///?}
         // Air-floor hard reject. With placedWithoutTopRim=true the OR-chain
         // below would otherwise short-circuit to true regardless of what
         // `floor` is, including air — which would let the player place plants
@@ -277,14 +277,14 @@ public class Placeable implements ModInitializer {
         // as "use defaults" — the default for floor checks requires a top rim.
         boolean withoutTopRim = config != null && config.placedWithoutTopRim;
         //? if >=26 {
-        /*return (withoutTopRim || floor.isFaceSturdy(world, pos, Direction.UP))
+        return (withoutTopRim || floor.isFaceSturdy(world, pos, Direction.UP))
                 || floor.is(BlockTags.LEAVES)
-                || floor.is(Blocks.DIRT_PATH);*/
+                || floor.is(Blocks.DIRT_PATH);
         //?} else {
-        return (withoutTopRim || Block.hasTopRim(world, pos))
+        /*return (withoutTopRim || Block.hasTopRim(world, pos))
                 || floor.isIn(BlockTags.LEAVES)
                 || floor.isOf(Blocks.DIRT_PATH);
-        //?}
+        *///?}
     }
 
     /**
@@ -301,10 +301,10 @@ public class Placeable implements ModInitializer {
      * Convenience overload: read the BlockState from the world first.
      */
     //? if >=26 {
-    /*public static boolean isDisabled(LevelReader world, BlockPos blockPos) {*/
+    public static boolean isDisabled(LevelReader world, BlockPos blockPos) {
     //?} else {
-    public static boolean isDisabled(WorldView world, BlockPos blockPos) {
-    //?}
+    /*public static boolean isDisabled(WorldView world, BlockPos blockPos) {
+    *///?}
         return isDisabled(world.getBlockState(blockPos));
     }
 

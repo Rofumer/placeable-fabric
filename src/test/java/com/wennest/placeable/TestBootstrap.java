@@ -1,10 +1,10 @@
 package com.wennest.placeable;
 
 //? if >=26 {
-/*import net.minecraft.server.Bootstrap;*/
+import net.minecraft.server.Bootstrap;
 //?} else {
-import net.minecraft.Bootstrap;
-//?}
+/*import net.minecraft.Bootstrap;
+*///?}
 import net.minecraft.SharedConstants;
 
 /**
@@ -28,18 +28,18 @@ final class TestBootstrap {
         // Sets `SharedConstants.CURRENT_VERSION`; mandatory before
         // Bootstrap runs because DataFixers reads it during static init.
         //? if >=26 {
-        /*SharedConstants.tryDetectVersion();*/
+        SharedConstants.tryDetectVersion();
         //?} else {
-        SharedConstants.createGameVersion();
-        //?}
+        /*SharedConstants.createGameVersion();
+        *///?}
         // Walks the full vanilla bootstrap chain — registries, sound events,
         // particle types, etc. After this returns, every `Blocks.*` static
         // field is safe to dereference from JUnit threads.
         //? if >=26 {
-        /*Bootstrap.bootStrap();*/
+        Bootstrap.bootStrap();
         //?} else {
-        Bootstrap.initialize();
-        //?}
+        /*Bootstrap.initialize();
+        *///?}
     }
 
     private TestBootstrap() {

@@ -4,14 +4,14 @@ import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.wennest.placeable.Placeable;
 //? if >=26 {
-/*import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.core.BlockPos;
-import net.minecraft.util.RandomSource;*/
+import net.minecraft.util.RandomSource;
 //?} else {
-import net.minecraft.server.world.ServerWorld;
+/*import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.random.Random;
-//?}
+*///?}
 import org.spongepowered.asm.mixin.Mixin;
 
 /**
@@ -60,10 +60,10 @@ import org.spongepowered.asm.mixin.Mixin;
  * runtime; no extra dependency declaration is needed.
  */
 //? if >=26 {
-/*@Mixin(targets = "net.minecraft.world.level.block.state.BlockBehaviour$BlockStateBase")*/
+@Mixin(targets = "net.minecraft.world.level.block.state.BlockBehaviour$BlockStateBase")
 //?} else {
-@Mixin(targets = "net.minecraft.block.AbstractBlock$AbstractBlockState")
-//?}
+/*@Mixin(targets = "net.minecraft.block.AbstractBlock$AbstractBlockState")
+*///?}
 public abstract class AbstractBlockStateNaturalTickMixin {
 
     /**
@@ -77,10 +77,10 @@ public abstract class AbstractBlockStateNaturalTickMixin {
     @WrapMethod(method = "randomTick")
     private void placeable$wrapRandomTick(
             //? if >=26 {
-            /*ServerLevel world, BlockPos pos, RandomSource random,*/
+            ServerLevel world, BlockPos pos, RandomSource random,
             //?} else {
-            ServerWorld world, BlockPos pos, Random random,
-            //?}
+            /*ServerWorld world, BlockPos pos, Random random,
+            *///?}
             Operation<Void> original) {
         Placeable.enterNaturalTick();
         try {
@@ -102,16 +102,16 @@ public abstract class AbstractBlockStateNaturalTickMixin {
      * and any future scheduled-tick plant logic.
      */
     //? if >=26 {
-    /*@WrapMethod(method = "tick")*/
+    @WrapMethod(method = "tick")
     //?} else {
-    @WrapMethod(method = "scheduledTick")
-    //?}
+    /*@WrapMethod(method = "scheduledTick")
+    *///?}
     private void placeable$wrapScheduledTick(
             //? if >=26 {
-            /*ServerLevel world, BlockPos pos, RandomSource random,*/
+            ServerLevel world, BlockPos pos, RandomSource random,
             //?} else {
-            ServerWorld world, BlockPos pos, Random random,
-            //?}
+            /*ServerWorld world, BlockPos pos, Random random,
+            *///?}
             Operation<Void> original) {
         Placeable.enterNaturalTick();
         try {
