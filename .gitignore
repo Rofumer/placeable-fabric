@@ -48,3 +48,8 @@ versions/*/logs/
 
 versions/*/run/
 versions/*/config/
+
+# Loom per-version remapped jar cache (generated on first runClient/runServer,
+# machine-specific, can be several hundred MB)
+
+versions/*/.fabric/
