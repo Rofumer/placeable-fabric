@@ -5,12 +5,8 @@ import com.wennest.placeable.Placeable;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SugarCaneBlock;
-import net.minecraft.world.level.material.FluidState;
-import net.minecraft.tags.BlockTags;
-import net.minecraft.tags.FluidTags;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.LevelReader;
 //?} else {
@@ -41,10 +37,17 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
  * vanilla feature placement and natural ecology spread are never widened.
  *
  * <p>Also prevents random-tick growth when the cane stack is rooted on a
- * non-vanilla floor (anything other than dirt/sand with adjacent water or
- * frosted ice). This keeps mod-placed cane decorative — it persists but
- * never propagates upward into a stack that would violate vanilla growth
- * invariants.
+ * non-vanilla floor (anything other than a block vanilla accepts for cane
+ * placement, with adjacent water or frosted ice). This keeps mod-placed cane
+ * decorative — it persists but never propagates upward into a stack that
+ * would violate vanilla growth invariants.
+ *
+ * <p>For MC >=26, the vanilla-validity check is delegated to
+ * {@code SugarCaneBlock.canSurvive} itself (called with natural-tick depth
+ * incremented so our own {@code canSurvive} override bypasses). This avoids
+ * reimplementing the soil+water rule with block tags whose contents may differ
+ * across versions (e.g. {@code BlockTags.DIRT} no longer includes
+ * {@code grass_block} or {@code mud} in 26.x).
  *
  * <p>{@code SugarCaneBlock} fully overrides {@code canPlaceAt} (no
  * super-call), so {@link PlantBlockMixin}'s transitive coverage does not
@@ -73,8 +76,12 @@ public class SugarCaneBlockMixin {
 
     /**
      * Cancels growth when the cane stack is rooted on a non-vanilla floor.
-     * Walks down the stack to find the actual ground, then checks for
-     * dirt/sand + adjacent water or frosted ice (vanilla growth rule).
+     * Walks down the stack to find the actual ground block, then checks
+     * whether that location would pass vanilla's own placement rule.
+     *
+     * <p>For MC >=26 the check is delegated to {@code canSurvive} on the
+     * bottom cane so the soil+water logic stays in sync with vanilla and
+     * does not break when block-tag contents change between versions.
      */
     @Inject(method = "randomTick", at = @At("HEAD"), cancellable = true)
     //? if >=26 {
@@ -96,35 +103,40 @@ public class SugarCaneBlockMixin {
         }
 
         //? if >=26 {
+        // Delegate vanilla-validity to canSurvive so we match whatever soil+water
+        // rules vanilla enforces in this MC version without reimplementing them.
+        // AbstractBlockStateNaturalTickMixin already set isNaturalTick() = true,
+        // but we call enterNaturalTick() again for safety in case that wrap missed.
         BlockPos groundBlockPos = blockPos.below(i);
-        BlockState groundBlockState = world.getBlockState(groundBlockPos);
-        if (!groundBlockState.is(BlockTags.DIRT) && !groundBlockState.is(BlockTags.SAND)) {
+        boolean canGrow = false;
+        Placeable.enterNaturalTick();
+        try {
+            BlockPos bottomCanePos = groundBlockPos.above();
+            canGrow = world.getBlockState(bottomCanePos).canSurvive(world, bottomCanePos);
+        } finally {
+            Placeable.exitNaturalTick();
+        }
+        if (!canGrow) {
+            ci.cancel();
+        }
         //?} else {
         /*BlockPos groundBlockPos = blockPos.down(i);
         BlockState groundBlockState = world.getBlockState(groundBlockPos);
         if (!groundBlockState.isIn(BlockTags.DIRT) && !groundBlockState.isIn(BlockTags.SAND)) {
-        *///?}
             ci.cancel();
             return;
         }
 
-        //? if >=26 {
-        for (Direction direction : Direction.Plane.HORIZONTAL) {
-            BlockState targetBlockState = world.getBlockState(groundBlockPos.relative(direction));
-            FluidState targetFluidState = world.getFluidState(groundBlockPos.relative(direction));
-
-            if (targetFluidState.is(FluidTags.WATER) || targetBlockState.is(Blocks.FROSTED_ICE)) {
-        //?} else {
-        /*for (Direction direction : Direction.Type.HORIZONTAL) {
+        for (Direction direction : Direction.Type.HORIZONTAL) {
             BlockState targetBlockState = world.getBlockState(groundBlockPos.offset(direction));
             FluidState targetFluidState = world.getFluidState(groundBlockPos.offset(direction));
 
             if (targetFluidState.isIn(FluidTags.WATER) || targetBlockState.isOf(Blocks.FROSTED_ICE)) {
-        *///?}
                 return;
             }
         }
 
         ci.cancel();
+        *///?}
     }
 }
