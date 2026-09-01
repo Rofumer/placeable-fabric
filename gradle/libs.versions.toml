@@ -14,7 +14,7 @@
 
 [versions]
 # Build plugin — version-agnostic.
-fabric-loom = "1.16.2"
+fabric-loom = "1.17.20"
 
 # Library — version-agnostic across the 1.21.x family.
 gson = "2.13.1"

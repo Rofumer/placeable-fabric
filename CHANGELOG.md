@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Minecraft 26.1.2 build target** — first 26.x (Mojmap, non-obfuscated,
+  Java 25) target. Every cross-version difference is expressed with
+  `//? if >=26` Stonecutter conditionals in the shared source tree.
+- **Minecraft 26.2 build target** — brings the jar count to 7. 26.2 needed
+  **no source changes**: a `javap` diff of `Blocks` between the 26.1.2 and
+  26.2 Loom jars found no added, removed, or renamed plant blocks (26.2's
+  churn is sulfur / cinnabar / speleothem additions plus the collapse of the
+  dyed-colour and weathering-copper families into `ColorCollection` /
+  `WeatheringCopperCollection`, none of which the mod references).
+  The jar declares `depends.minecraft = ">=26.2- <26.3"`.
+
+### Changed
+
+- **Fabric Loom 1.16.2 → 1.17.20** in `gradle/libs.versions.toml`. The 26.2
+  Fabric API / Cloth Config / ModMenu artifacts are published with Loom
+  1.17.13, and 1.16.2 refuses them at configuration time with
+  `Mod was built with a newer version of Loom`. The catalog is shared by
+  every Stonecutter target; all seven build and test green on 1.17.20.
+
 ## [1.3.0] - 2026-05-09
 
 This release is a comprehensive overhaul. It rebuilds the worldgen guard,

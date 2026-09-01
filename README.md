@@ -123,9 +123,9 @@ orphan keys (from a downgrade) are dropped.
 
 ## 🧩 Supported Minecraft versions
 
-Placeable Plants 1.2.0 ships **5 jars** from a single source tree (managed
-by Stonecutter) and together they cover **all 12** patch versions in the
-1.21 family.
+Placeable Plants ships **7 jars** from a single source tree (managed by
+Stonecutter): five cover **all 12** patch versions in the 1.21 family, and
+two cover the year-based 26.x releases.
 
 | Built jar | Drop name          | Patch versions covered       |
 |-----------|--------------------|------------------------------|
@@ -134,12 +134,14 @@ by Stonecutter) and together they cover **all 12** patch versions in the
 | 1.21.5    | Spring to Life     | 1.21.5                       |
 | 1.21.8    | Chase the Skies    | 1.21.6, 1.21.7, 1.21.8       |
 | 1.21.11   | Mounts of Mayhem   | 1.21.9, 1.21.10, 1.21.11     |
+| 26.1.2    | 2026 (year-based)  | 26.1.2                       |
+| 26.2      | 2026 (year-based)  | 26.2                         |
 
 Each jar declares a tight `depends.minecraft` range so Fabric Loader
 automatically refuses to load it on the wrong patch. See
 [`docs/VERSIONS.md`](docs/VERSIONS.md) for the full per-version dependency
-matrix, the rationale for the dedicated 1.21.4 build target, and the
-future Mojmap (26.x) migration plan.
+matrix, the rationale for the dedicated 1.21.4 build target, and notes on
+the Mojmap (26.x) targets.
 
 ## 📌 Credits
 

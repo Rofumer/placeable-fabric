@@ -17,11 +17,12 @@ a tested artifact.
 | 1.21.8     | first-class | `1.21.8+build.1`     | Stable mid-series; no plant-API drift relative to 1.21.5.                                                                                                                                                                                                      |
 | 1.21.11    | first-class | `1.21.11+build.5`    | Final 1.21 series version. "Mounts of Mayhem".                                                                                                                                                                                                                 |
 | 26.1.2     | first-class | Mojmap (no Yarn)     | 2026 year-based versioning. Mojang official mappings; Java 25; no Yarn. Uses `//? if >=26` Stonecutter conditionals throughout — see "Why a separate 26.1.2 build?" below.                                                                                     |
+| 26.2       | first-class | Mojmap (no Yarn)     | Adds sulfur / cinnabar / speleothem blocks and collapses the dyed-colour and weathering-copper block families into `ColorCollection` / `WeatheringCopperCollection`. **No plant-block changes vs. 26.1.2** — the shared `//? if >=26` source tree compiles unmodified. Requires Loom 1.17+.                                    |
 
 ## Per-version compatibility map
 
 The 1.21 series spans 12 game versions (1.21, 1.21.1, …, 1.21.11). The mod
-ships **5 jars** that together cover **all 12** by leveraging each game-drop's
+ships **7 jars**; the five 1.21.x jars together cover **all 12** by leveraging each game-drop's
 internal patch line (Mojang's "drop X.Y" branches share the same plant block
 API across patch releases within the drop) and adding a dedicated 1.21.4
 build to handle the symbol gap between "Bundles of Bravery" and
@@ -39,6 +40,7 @@ CurseForge "supported versions" list per release entry.
 | 1.21.8    | Chase the Skies     | 1.21.6, 1.21.7, 1.21.8       | `1.21.6,1.21.7,1.21.8`              | `>=1.21.6- <1.21.9`                   |
 | 1.21.11   | Mounts of Mayhem ** | 1.21.9, 1.21.10, 1.21.11     | `1.21.9,1.21.10,1.21.11`            | `>=1.21.9- <1.22`                     |
 | 26.1.2    | 2026 (year-based)   | 26.1.2                       | `26.1.2`                            | `>=26.1.2- <26.2`                     |
+| 26.2      | 2026 (year-based)   | 26.2                         | `26.2`                              | `>=26.2- <26.3`                       |
 
 \* The 1.21.1 jar is bytecode-compatible across 1.21 → 1.21.3 because the
 plant Block roster is unchanged between Tricky Trials and the pre-Bundles
@@ -105,8 +107,9 @@ extend an existing jar's compat range. The procedure is:
 
 ## Versions explicitly OUT OF SCOPE for this mod's lifecycle
 
-No versions currently out of scope — 26.1.2 was successfully ported. Future
-year-based MC versions (26.2+) will be assessed when released.
+No versions currently out of scope — 26.1.2 and 26.2 were successfully
+ported. Future year-based MC versions (26.3+) will be assessed when
+released.
 
 ## Upgrade-new-MC-version checklist
 
@@ -193,3 +196,35 @@ Key changes made:
    `ServerLevel`, `Random` → `RandomSource` throughout all mixin files.
 5. Mixin target for `AbstractBlockStateNaturalTickMixin` changed from
    `AbstractBlock$AbstractBlockState` to `BlockBehaviour$BlockStateBase`.
+
+## Reference: 26.2 (completed)
+
+26.2 was added as a first-class Stonecutter target with **zero source
+changes**. Findings from the port:
+
+1. Every `//? if >=26` conditional already written for 26.1.2 matches 26.2,
+   so the chiseled 26.2 source tree is byte-identical to the 26.1.2 one.
+2. Plant audit (`javap` diff of `net.minecraft.world.level.block.Blocks`
+   between the 26.1.2 and 26.2 merged Loom jars) found **no** added, removed,
+   or renamed plant blocks. The 26.2 `Blocks` churn is entirely non-plant:
+   - added: `SULFUR*`, `CINNABAR*`, `POTENT_SULFUR`, `SULFUR_SPIKE`,
+     `POLISHED_*`, `CHISELED_*` variants;
+   - restructured: the per-colour fields (`WHITE_WOOL`, `RED_BED`, …) collapsed
+     into `ColorCollection` accessors (`WOOL`, `BED`, `CARPET`, `BANNER`,
+     `WALL_BANNER`, `CONCRETE`, `CONCRETE_POWDER`, `STAINED_GLASS`,
+     `STAINED_GLASS_PANE`, `GLAZED_TERRACOTTA`, `DYED_TERRACOTTA`,
+     `DYED_CANDLE`, `DYED_CANDLE_CAKE`, `DYED_SHULKER_BOX`), and the
+     weathering-copper fields into `WeatheringCopperCollection`;
+   - class churn: `PointedDripstoneBlock` → `SpeleothemBlock`,
+     `WeatheringCopperBlocks` → `WeatheringCopperCollection`.
+   The mod references none of these, so nothing needed conditioning.
+3. **Fabric Loom had to be bumped 1.16.2 → 1.17.20** in
+   `gradle/libs.versions.toml`. The 26.2 Fabric API / Cloth Config / ModMenu
+   artifacts are built with Loom 1.17.13, and Loom fails configuration with
+   `Mod was built with a newer version of Loom (1.17.13), you are using Loom
+   (1.16.2)`. The bump is global (the catalog is shared by every target); all
+   seven targets build and test green on 1.17.20.
+4. The identity-mappings JAR trick is unchanged — `versions/26.2/` carries its
+   own copy of `identity-mappings.jar`, as Loom resolves the file relative to
+   each subproject directory.
+

@@ -4,9 +4,10 @@
 
 Fabric mod (Stonecutter multi-version) that relaxes plant placement rules so
 players can place plants on top of any block with a top-rim, leaves, or dirt
-path. Supports MC 1.21.1, 1.21.4, 1.21.5, 1.21.8, 1.21.11, and **26.1.2**.
-Source tree is unified; per-version differences use `//? if` Stonecutter
-preprocessor comments. VCS active version is **1.21.5**.
+path. Supports MC 1.21.1, 1.21.4, 1.21.5, 1.21.8, 1.21.11, **26.1.2**, and
+**26.2**. Source tree is unified; per-version differences use `//? if`
+Stonecutter preprocessor comments. VCS reset version is **1.21.5**; the
+current Stonecutter *active* version is **26.2** (`stonecutter.gradle.kts`).
 
 ## Key files
 
@@ -107,12 +108,40 @@ been updated to handle the non-obfuscated nature of Minecraft 26.x.
 
 ## ✅ PORT IS COMPLETE
 
-All 6 versions (1.21.1, 1.21.4, 1.21.5, 1.21.8, 1.21.11, 26.1.2) build and
-pass all tests. `./gradlew chiseledBuild` succeeds without errors.
+All 7 versions (1.21.1, 1.21.4, 1.21.5, 1.21.8, 1.21.11, 26.1.2, 26.2) build
+and pass all tests. `./gradlew chiseledBuild` succeeds without errors.
+
+## 26.2 port — complete (branch `26.2`)
+
+26.2 required **zero source changes**. Everything gated on `//? if >=26`
+already matches 26.2, and a `javap` diff of `Blocks` between the 26.1.2 and
+26.2 merged Loom jars showed no plant-block additions, removals, or renames.
+26.2's `Blocks` churn is entirely non-plant: sulfur / cinnabar / speleothem
+additions, `PointedDripstoneBlock` → `SpeleothemBlock`, and the collapse of
+the per-colour and weathering-copper field families into `ColorCollection` /
+`WeatheringCopperCollection`. The mod references none of them.
+
+What the port did need:
+
+- `versions/26.2/gradle.properties` — `fabric_loader=0.19.3`,
+  `fabric_api=0.158.0+26.2`, `cloth_config=26.2.155`, `modmenu=20.0.1`,
+  `minecraft_dep=>=26.2- <26.3`. No `yarn_mappings` (same as 26.1.2).
+- `versions/26.2/identity-mappings.jar` — copied from 26.1.2; Loom resolves
+  the path per-subproject so each 26.x target needs its own copy.
+- `"26.2"` added to `versions(...)` in `settings.gradle.kts`.
+- **Fabric Loom 1.16.2 → 1.17.20** in `gradle/libs.versions.toml`. Required:
+  the 26.2 Fabric API / Cloth / ModMenu artifacts are built with Loom 1.17.13
+  and 1.16.2 fails configuration with `Mod was built with a newer version of
+  Loom (1.17.13)`. The bump is global; all seven targets stay green.
+- CI: `26.2` added to the `release.yml` publish matrix and the `build.yml`
+  test task list; the release workflow's JDK selector is now
+  `startsWith(matrix.minecraft, '26.')` instead of an equality check on
+  `26.1.2`.
 
 ### Remaining task — Runtime verification (Priority 4)
 
-Run `./gradlew :26.1.2:runClient` and manually test plant placement in-game.
+Run `./gradlew :26.1.2:runClient` / `:26.2:runClient` and manually test plant
+placement in-game.
 The `placeable.mixins.json` uses `${mixin_java_level}` substitution (JAVA_25
 for >=26) which is verified at compile time; runtime sanity should confirm
 the mod loads and plants can be placed on non-standard floors.
@@ -161,5 +190,5 @@ import net.minecraft.block.SomeBlock;  // active in VCS
 
 ## Commit state
 
-All changes are uncommitted on branch `main`. Run `git diff --stat` to see the
+26.x work lives on branch `26.2`. Run `git diff --stat main` to see the
 full list of modified files.

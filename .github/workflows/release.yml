@@ -118,6 +118,9 @@ jobs:
                     -   minecraft: "26.1.2"
                         game_versions: |
                             26.1.2
+                    -   minecraft: "26.2"
+                        game_versions: |
+                            26.2
 
         steps:
             # Step 1 — Checkout. fetch-depth: 0 because mc-publish reads
@@ -136,7 +139,7 @@ jobs:
                     distribution: temurin
                     java-version: "21"
 
-            # Step 2b — Java 25 toolchain for the 26.1.2 target.
+            # Step 2b — Java 25 toolchain for the 26.x targets.
             -   name: Set up JDK 25
                 uses: actions/setup-java@v4
                 with:
@@ -297,7 +300,7 @@ jobs:
                     # MIN/MAX flags set).
                     game-version-filter: any
                     # Java version at runtime — 21 for 1.21.x, 25 for 26.x.
-                    java: ${{ matrix.minecraft == '26.1.2' && '25' || '21' }}
+                    java: ${{ startsWith(matrix.minecraft, '26.') && '25' || '21' }}
 
                     # ---- Mod dependencies ----
                     # Declared on every platform that supports them. Format
