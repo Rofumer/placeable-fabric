@@ -75,6 +75,31 @@ public class SugarCaneBlockMixin {
     }
 
     /**
+     * Keeps a mod-placed cane alive through its own scheduled survival tick.
+     *
+     * <p>Vanilla {@code updateShape} schedules a tick whenever
+     * {@code canSurvive} fails, and {@code tick} then destroys the block if
+     * {@code canSurvive} still fails. When cane growth is triggered from a
+     * natural-tick bracket (e.g. bone meal made applicable to cane by another
+     * mod, bracketed by {@link BoneMealItemMixin}), both calls see vanilla's
+     * strict floor rule and the root cane broke itself. Survival of an
+     * already-placed block is player intent, so the relaxed floor rule
+     * applies here.
+     */
+    //? if >=26 {
+    @Inject(method = "tick", at = @At("HEAD"), cancellable = true)
+    public void placeable$keepModPlacedCane(BlockState state, ServerLevel world, BlockPos pos, RandomSource random, CallbackInfo ci) {
+    //?} else {
+    /*@Inject(method = "scheduledTick", at = @At("HEAD"), cancellable = true)
+    public void placeable$keepModPlacedCane(BlockState state, ServerWorld world, BlockPos pos, Random random, CallbackInfo ci) {
+    *///?}
+        if (Placeable.isDisabled(state)) return;
+        if (Placeable.isValidFloor(world, pos)) {
+            ci.cancel();
+        }
+    }
+
+    /**
      * Cancels growth when the cane stack is rooted on a non-vanilla floor.
      * Walks down the stack to find the actual ground block, then checks
      * whether that location would pass vanilla's own placement rule.

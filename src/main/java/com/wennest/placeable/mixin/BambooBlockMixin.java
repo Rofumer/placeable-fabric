@@ -87,6 +87,35 @@ public class BambooBlockMixin {
     }
 
     /**
+     * Keeps a mod-placed stalk alive through its own scheduled survival tick.
+     *
+     * <p>Vanilla {@code updateShape} schedules a tick whenever
+     * {@code canSurvive} fails, and {@code tick} then destroys the block if
+     * {@code canSurvive} still fails. Bone meal growth runs inside the
+     * {@link BoneMealItemMixin} natural-tick bracket, so the root stalk's
+     * {@code updateShape} (fired when a segment is added above it) and the
+     * resulting {@code tick} (wrapped by
+     * {@link AbstractBlockStateNaturalTickMixin}) both see vanilla's strict
+     * floor rule — and a bone-mealed stalk on e.g. a slab broke itself.
+     * Survival of an already-placed block is player intent, not natural
+     * spread, so the relaxed floor rule applies here.
+     */
+    //? if >=26 {
+    @Inject(method = "tick", at = @At("HEAD"), cancellable = true)
+    public void placeable$keepModPlacedStalk(BlockState state, ServerLevel world, BlockPos pos,
+                                             RandomSource random, CallbackInfo ci) {
+    //?} else {
+    /*@Inject(method = "scheduledTick", at = @At("HEAD"), cancellable = true)
+    public void placeable$keepModPlacedStalk(BlockState state, ServerWorld world, BlockPos pos,
+                                             Random random, CallbackInfo ci) {
+    *///?}
+        if (Placeable.isDisabled(BAMBOO_KEY)) return;
+        if (Placeable.isValidFloor(world, pos)) {
+            ci.cancel();
+        }
+    }
+
+    /**
      * Cancels the bamboo random-tick growth path when the stack root rests on
      * a non-{@link BlockTags#BAMBOO_PLANTABLE_ON} floor. Without this guard a
      * player-placed bamboo on cobblestone would still grow upward into an
