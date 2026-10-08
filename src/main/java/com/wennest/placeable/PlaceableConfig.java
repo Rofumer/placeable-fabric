@@ -36,6 +36,15 @@ public class PlaceableConfig implements ConfigData {
     @Comment("Allow placement on blocks without a top rim.")
     public boolean placedWithoutTopRim = false;
 
+    @Comment("Allow bamboo to hang from the underside of blocks.")
+    public boolean hangingBamboo = true;
+
+    @Comment("Leaves on hanging bamboo: MIRRORED, FULL or NONE.")
+    public HangingBambooLeaves hangingBambooLeaves = HangingBambooLeaves.FULL;
+
+    @Comment("Let hanging bamboo grow downward (random ticks and bone meal).")
+    public boolean hangingBambooGrowth = false;
+
     @Comment("Allow or disable specific plants.")
     public Map<PlaceablePlants, Boolean> allowPlaceablePlants = new ConcurrentHashMap<>();
 
@@ -69,6 +78,12 @@ public class PlaceableConfig implements ConfigData {
      * <p>Safe to call multiple times; idempotent.
      */
     public void validatePostLoad() {
+        // Gson writes null for an unknown enum name (hand-edited file, or a
+        // constant renamed in a later version); fall back to the default.
+        if (hangingBambooLeaves == null) {
+            hangingBambooLeaves = HangingBambooLeaves.FULL;
+        }
+
         // Defensive replacement: AutoConfig may have left the field as a plain
         // EnumMap or HashMap if the on-disk JSON was hand-edited. Always
         // promote to ConcurrentHashMap before any reader can race against us.

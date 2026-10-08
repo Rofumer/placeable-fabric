@@ -1,5 +1,6 @@
 package com.wennest.placeable.mixin;
 
+import com.wennest.placeable.HangingBamboo;
 import com.wennest.placeable.Placeable;
 //? if >=26 {
 import net.minecraft.world.level.block.BambooStalkBlock;
@@ -10,8 +11,10 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.ScheduledTickAccess;
 //?} else {
 /*import net.minecraft.block.BambooBlock;
 import net.minecraft.block.Block;
@@ -21,8 +24,17 @@ import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.WorldView;
+*///?}
+//? if >=26.3 {
+import net.minecraft.world.level.block.BonemealSource;
+//?}
+//? if >=1.21.2 && <26 {
+/*import net.minecraft.world.tick.ScheduledTickView;
+*///?} else if <1.21.2 {
+/*import net.minecraft.world.WorldAccess;
 *///?}
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -87,6 +99,113 @@ public class BambooBlockMixin {
     }
 
     /**
+     * Survival rule for a column with no floor: it lives while it hangs from
+     * a valid ceiling (see {@link HangingBamboo}). Vanilla would keep every
+     * segment above a bamboo block alive, so without this a column whose
+     * ceiling is removed would float.
+     *
+     * <p>Unlike the relaxed-floor rule this one is NOT bypassed inside
+     * natural-tick frames: bamboo has no natural spread that consults
+     * {@code canSurvive}, and the hanging column's own scheduled survival
+     * tick and growth run inside those frames. Worldgen is still left to
+     * vanilla.
+     */
+    //? if >=26 {
+    @Inject(method = "canSurvive", at = @At("HEAD"), cancellable = true)
+    public void placeable$canHang(BlockState state, LevelReader world, BlockPos pos,
+    //?} else {
+    /*@Inject(method = "canPlaceAt", at = @At("HEAD"), cancellable = true)
+    public void placeable$canHang(BlockState state, WorldView world, BlockPos pos,
+    *///?}
+                                  CallbackInfoReturnable<Boolean> cir) {
+        if (!HangingBamboo.isRuntime(world)) return;
+        if (!HangingBamboo.isEnabled()) return;
+        if (HangingBamboo.hasNoFloor(world, pos)) {
+            cir.setReturnValue(HangingBamboo.isCeilingSupported(world, pos));
+        }
+    }
+
+    /**
+     * Keeps a hanging segment's leaves and thickness in step with the column
+     * as segments are added or removed under it (see
+     * {@link HangingBamboo#reshape}).
+     */
+    //? if >=26 {
+    @Inject(method = "updateShape", at = @At("RETURN"), cancellable = true)
+    public void placeable$reshapeHanging(BlockState state, LevelReader world, ScheduledTickAccess ticks,
+                                         BlockPos pos, Direction direction, BlockPos neighborPos,
+                                         BlockState neighborState, RandomSource random,
+                                         CallbackInfoReturnable<BlockState> cir) {
+    //?} else if >=1.21.2 {
+    /*@Inject(method = "getStateForNeighborUpdate", at = @At("RETURN"), cancellable = true)
+    public void placeable$reshapeHanging(BlockState state, WorldView world, ScheduledTickView tickView,
+                                         BlockPos pos, Direction direction, BlockPos neighborPos,
+                                         BlockState neighborState, Random random,
+                                         CallbackInfoReturnable<BlockState> cir) {
+    *///?} else {
+    /*@Inject(method = "getStateForNeighborUpdate", at = @At("RETURN"), cancellable = true)
+    public void placeable$reshapeHanging(BlockState state, Direction direction, BlockState neighborState,
+                                         WorldAccess world, BlockPos pos, BlockPos neighborPos,
+                                         CallbackInfoReturnable<BlockState> cir) {
+    *///?}
+        BlockState result = cir.getReturnValue();
+        //? if >=26 {
+        if (!result.is(Blocks.BAMBOO)) return;
+        //?} else {
+        /*if (!result.isOf(Blocks.BAMBOO)) return;
+        *///?}
+        if (!HangingBamboo.isRuntime(world)) return;
+        if (!HangingBamboo.isEnabled()) return;
+        if (!HangingBamboo.isHanging(world, pos)) return;
+        cir.setReturnValue(HangingBamboo.reshape(result, world, pos, direction, neighborState));
+    }
+
+    /**
+     * Bone meal on a hanging column grows it downward when
+     * {@code hangingBambooGrowth} is on, and does nothing otherwise.
+     */
+    //? if >=26.3 {
+    @Inject(method = "isValidBonemealTarget", at = @At("HEAD"), cancellable = true)
+    public void placeable$canBonemealHanging(LevelReader world, BlockPos pos, BlockState state,
+                                             BonemealSource source, CallbackInfoReturnable<Boolean> cir) {
+    //?} else if >=26 {
+    /*@Inject(method = "isValidBonemealTarget", at = @At("HEAD"), cancellable = true)
+    public void placeable$canBonemealHanging(LevelReader world, BlockPos pos, BlockState state,
+                                             CallbackInfoReturnable<Boolean> cir) {
+    *///?} else {
+    /*@Inject(method = "isFertilizable", at = @At("HEAD"), cancellable = true)
+    public void placeable$canBonemealHanging(WorldView world, BlockPos pos, BlockState state,
+                                             CallbackInfoReturnable<Boolean> cir) {
+    *///?}
+        if (!HangingBamboo.isEnabled()) return;
+        if (!HangingBamboo.hasNoFloor(world, pos)) return;
+        cir.setReturnValue(HangingBamboo.isGrowthEnabled()
+                && HangingBamboo.isCeilingSupported(world, pos)
+                && HangingBamboo.canBonemeal(world, pos));
+    }
+
+    //? if >=26.3 {
+    @Inject(method = "performBonemeal", at = @At("HEAD"), cancellable = true)
+    public void placeable$bonemealHanging(ServerLevel world, RandomSource random, BlockPos pos, BlockState state,
+                                          BonemealSource source, CallbackInfo ci) {
+    //?} else if >=26 {
+    /*@Inject(method = "performBonemeal", at = @At("HEAD"), cancellable = true)
+    public void placeable$bonemealHanging(ServerLevel world, RandomSource random, BlockPos pos, BlockState state,
+                                          CallbackInfo ci) {
+    *///?} else {
+    /*@Inject(method = "grow", at = @At("HEAD"), cancellable = true)
+    public void placeable$bonemealHanging(ServerWorld world, Random random, BlockPos pos, BlockState state,
+                                          CallbackInfo ci) {
+    *///?}
+        if (!HangingBamboo.isEnabled()) return;
+        if (!HangingBamboo.hasNoFloor(world, pos)) return;
+        if (HangingBamboo.isGrowthEnabled() && HangingBamboo.isCeilingSupported(world, pos)) {
+            HangingBamboo.bonemeal(world, random, pos);
+        }
+        ci.cancel();
+    }
+
+    /**
      * Keeps a mod-placed stalk alive through its own scheduled survival tick.
      *
      * <p>Vanilla {@code updateShape} schedules a tick whenever
@@ -110,6 +229,11 @@ public class BambooBlockMixin {
                                              Random random, CallbackInfo ci) {
     *///?}
         if (Placeable.isDisabled(BAMBOO_KEY)) return;
+        // A floorless column is judged by placeable$canHang, which vanilla's
+        // tick consults; with placedWithoutTopRim the bamboo segment below
+        // would otherwise count as a relaxed floor and keep a column whose
+        // ceiling is gone.
+        if (HangingBamboo.isEnabled() && HangingBamboo.hasNoFloor(world, pos)) return;
         if (Placeable.isValidFloor(world, pos)) {
             ci.cancel();
         }
@@ -136,6 +260,14 @@ public class BambooBlockMixin {
                                           Random random, CallbackInfo ci) {
     *///?}
         if (Placeable.isDisabled(BAMBOO_KEY)) {
+            return;
+        }
+
+        // Hanging columns grow downward instead, and only when enabled; the
+        // root walk below cancels their vanilla (upward) growth otherwise.
+        if (HangingBamboo.isGrowthEnabled() && HangingBamboo.isHanging(world, pos)) {
+            HangingBamboo.randomGrow(state, world, pos, random);
+            ci.cancel();
             return;
         }
 
@@ -188,12 +320,22 @@ public class BambooBlockMixin {
 
         if (Placeable.isValidFloor(ctx.getLevel(), ctx.getClickedPos())) {
             cir.setReturnValue(BAMBOO_KEY.defaultBlockState());
+        } else if (HangingBamboo.isEnabled()
+                && ctx.getLevel().getFluidState(ctx.getClickedPos()).isEmpty()
+                && HangingBamboo.isCeilingSupported(ctx.getLevel(), ctx.getClickedPos())) {
+            // No floor, but a ceiling (or a hanging column) above: hang a
+            // stalk. Hanging columns skip the shoot stage.
+            cir.setReturnValue(HangingBamboo.placementState(ctx.getLevel(), ctx.getClickedPos()));
         //?} else {
         /*if (Placeable.shouldBypass(ctx.getWorld(), ctx.getBlockPos())) return;
         if (Placeable.isDisabled(BAMBOO_KEY)) return;
 
         if (Placeable.isValidFloor(ctx.getWorld(), ctx.getBlockPos())) {
             cir.setReturnValue(BAMBOO_KEY.getDefaultState());
+        } else if (HangingBamboo.isEnabled()
+                && ctx.getWorld().getFluidState(ctx.getBlockPos()).isEmpty()
+                && HangingBamboo.isCeilingSupported(ctx.getWorld(), ctx.getBlockPos())) {
+            cir.setReturnValue(HangingBamboo.placementState(ctx.getWorld(), ctx.getBlockPos()));
         *///?}
         }
     }

@@ -2,6 +2,7 @@ package com.wennest.placeable.integration;
 
 import com.terraformersmc.modmenu.api.ConfigScreenFactory;
 import com.terraformersmc.modmenu.api.ModMenuApi;
+import com.wennest.placeable.HangingBambooLeaves;
 import com.wennest.placeable.PlaceableConfig;
 import com.wennest.placeable.PlaceablePlants;
 import me.shedaniel.autoconfig.AutoConfig;
@@ -17,6 +18,8 @@ import net.minecraft.network.chat.Component;
 /*import net.minecraft.client.resource.language.I18n;
 import net.minecraft.text.Text;
 *///?}
+
+import java.util.Locale;
 
 @Environment(EnvType.CLIENT)
 public class ModMenuIntegration implements ModMenuApi {
@@ -79,6 +82,52 @@ public class ModMenuIntegration implements ModMenuApi {
                     )
                     .setDefaultValue(false)
                     .setSaveConsumer(newValue -> config.placedWithoutTopRim = newValue)
+                    .build()
+            );
+
+            // Hanging Bamboo Category
+            ConfigCategory hangingBambooCategory = builder.getOrCreateCategory(
+                    tr("config.placeable.category.hanging_bamboo")
+            );
+            hangingBambooCategory.addEntry(entryBuilder
+                    .startBooleanToggle(
+                            tr("config.placeable.option.hanging_bamboo"),
+                            config.hangingBamboo
+                    )
+                    .setTooltip(
+                            tr("config.placeable.option.hanging_bamboo.tooltip")
+                    )
+                    .setDefaultValue(true)
+                    .setSaveConsumer(newValue -> config.hangingBamboo = newValue)
+                    .build()
+            );
+            hangingBambooCategory.addEntry(entryBuilder
+                    .startEnumSelector(
+                            tr("config.placeable.option.hanging_bamboo_leaves"),
+                            HangingBambooLeaves.class,
+                            config.hangingBambooLeaves
+                    )
+                    .setEnumNameProvider(value -> tr(
+                            "config.placeable.option.hanging_bamboo_leaves."
+                                    + value.name().toLowerCase(Locale.ROOT)
+                    ))
+                    .setTooltip(
+                            tr("config.placeable.option.hanging_bamboo_leaves.tooltip")
+                    )
+                    .setDefaultValue(HangingBambooLeaves.FULL)
+                    .setSaveConsumer(newValue -> config.hangingBambooLeaves = newValue)
+                    .build()
+            );
+            hangingBambooCategory.addEntry(entryBuilder
+                    .startBooleanToggle(
+                            tr("config.placeable.option.hanging_bamboo_growth"),
+                            config.hangingBambooGrowth
+                    )
+                    .setTooltip(
+                            tr("config.placeable.option.hanging_bamboo_growth.tooltip")
+                    )
+                    .setDefaultValue(false)
+                    .setSaveConsumer(newValue -> config.hangingBambooGrowth = newValue)
                     .build()
             );
 

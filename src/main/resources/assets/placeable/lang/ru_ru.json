@@ -1,0 +1,18 @@
+{
+  "mod.name": "Placeable",
+  "config.placeable.category.general": "Основное",
+  "config.placeable.option.enable": "Включить Placeable Plants.",
+  "config.placeable.option.placed_without_top_rim": "Разрешить установку на блоки без верхней грани.",
+  "config.placeable.option.placed_without_top_rim.tooltip": "Если включено, растения могут парить в воздухе и возможны неизвестные баги!",
+  "config.placeable.category.allowed_plants": "Разрешённые растения",
+  "config.placeable.category.hanging_bamboo": "Висящий бамбук",
+  "config.placeable.option.hanging_bamboo": "Разрешить висящий бамбук.",
+  "config.placeable.option.hanging_bamboo.tooltip": "Бамбук можно ставить под нижнюю грань блока, и он свисает вниз. Если убрать блок сверху, вся колонна осыплется.",
+  "config.placeable.option.hanging_bamboo_leaves": "Листва висящего бамбука",
+  "config.placeable.option.hanging_bamboo_leaves.tooltip": "Зеркальная: большие листья на кончике, над ними маленькие, выше голый стебель.\nПолная: большие листья на каждом сегменте.\nБез листвы: голый стебель.",
+  "config.placeable.option.hanging_bamboo_leaves.mirrored": "Зеркальная",
+  "config.placeable.option.hanging_bamboo_leaves.full": "Полная",
+  "config.placeable.option.hanging_bamboo_leaves.none": "Без листвы",
+  "config.placeable.option.hanging_bamboo_growth": "Висящий бамбук растёт вниз.",
+  "config.placeable.option.hanging_bamboo_growth.tooltip": "Случайные тики и костная мука растят висящий бамбук вниз, до 16 блоков, как в ванили. Если выключено, висящий бамбук не растёт."
+}

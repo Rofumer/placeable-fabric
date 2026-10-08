@@ -4,5 +4,15 @@
   "config.placeable.option.enable": "Enable Placeable Plants.",
   "config.placeable.option.placed_without_top_rim": "Allow placement on blocks without a top rim.",
   "config.placeable.option.placed_without_top_rim.tooltip": "If enabled, plants may float and unknown bugs may occur!",
-  "config.placeable.category.allowed_plants": "Allowed plants"
+  "config.placeable.category.allowed_plants": "Allowed plants",
+  "config.placeable.category.hanging_bamboo": "Hanging bamboo",
+  "config.placeable.option.hanging_bamboo": "Allow hanging bamboo.",
+  "config.placeable.option.hanging_bamboo.tooltip": "Bamboo can be placed under the bottom face of a block and hangs down from it. The column breaks when its ceiling is removed.",
+  "config.placeable.option.hanging_bamboo_leaves": "Hanging bamboo leaves",
+  "config.placeable.option.hanging_bamboo_leaves.tooltip": "Mirrored: large leaves on the tip, small above it, bare stalk further up.\nFull: large leaves on every segment.\nNone: bare stalk.",
+  "config.placeable.option.hanging_bamboo_leaves.mirrored": "Mirrored",
+  "config.placeable.option.hanging_bamboo_leaves.full": "Full",
+  "config.placeable.option.hanging_bamboo_leaves.none": "None",
+  "config.placeable.option.hanging_bamboo_growth": "Hanging bamboo grows downward.",
+  "config.placeable.option.hanging_bamboo_growth.tooltip": "Random ticks and bone meal grow hanging bamboo downward, up to 16 blocks like vanilla. When off, hanging bamboo never grows."
 }

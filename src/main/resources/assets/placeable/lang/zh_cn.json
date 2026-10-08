@@ -4,5 +4,15 @@
   "config.placeable.option.enable": "激活可放置植物",
   "config.placeable.option.placed_without_top_rim": "允许放置在没有顶边的方块",
   "config.placeable.option.placed_without_top_rim.tooltip": "如果激活，可能会发生悬浮植物，也可能导致未知的Bug产生！",
-  "config.placeable.category.allowed_plants": "可放置植物"
+  "config.placeable.category.allowed_plants": "可放置植物",
+  "config.placeable.category.hanging_bamboo": "悬挂竹子",
+  "config.placeable.option.hanging_bamboo": "允许悬挂竹子",
+  "config.placeable.option.hanging_bamboo.tooltip": "竹子可以放置在方块底面下方并向下悬挂。移除顶部方块时整根竹子会掉落。",
+  "config.placeable.option.hanging_bamboo_leaves": "悬挂竹子的叶子",
+  "config.placeable.option.hanging_bamboo_leaves.tooltip": "镜像：末端为大叶子，其上为小叶子，再往上无叶子。\n全部：每一节都有大叶子。\n无：没有叶子。",
+  "config.placeable.option.hanging_bamboo_leaves.mirrored": "镜像",
+  "config.placeable.option.hanging_bamboo_leaves.full": "全部",
+  "config.placeable.option.hanging_bamboo_leaves.none": "无",
+  "config.placeable.option.hanging_bamboo_growth": "悬挂竹子向下生长",
+  "config.placeable.option.hanging_bamboo_growth.tooltip": "随机刻和骨粉会使悬挂竹子向下生长，与原版一样最多16格。关闭时悬挂竹子不会生长。"
 }
