@@ -61,7 +61,7 @@ stonecutter {
         // on a 1.21.4 server would throw NoSuchFieldError on class load.
         // Stonecutter's `//? if >=1.21.5` guards strip those entries from the
         // 1.21.4 chiseled output while preserving the rest of the source tree.
-        versions("1.21.1", "1.21.4", "1.21.5", "1.21.8", "1.21.11", "26.1.2", "26.2")
+        versions("1.21.1", "1.21.4", "1.21.5", "1.21.8", "1.21.11", "26.1.2", "26.2", "26.3")
 
         // Active version when developers run `./gradlew build` / `runClient`
         // without first switching projects. Kept at 1.21.5 to minimize

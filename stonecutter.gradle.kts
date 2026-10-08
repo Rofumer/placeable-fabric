@@ -26,7 +26,7 @@ plugins {
 // Active version — must match one of the versions declared in
 // `settings.gradle.kts` inside `stonecutter { create(rootProject) {
 // versions(...) } }`.
-stonecutter active "26.2"
+stonecutter active "26.3"
 
 // Aggregator task — invokes `build` across every chiseled subproject.
 // Uses Stonecutter's lazy task collection (`stonecutter.tasks.named`) so

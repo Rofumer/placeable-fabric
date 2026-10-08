@@ -4,10 +4,10 @@
 
 Fabric mod (Stonecutter multi-version) that relaxes plant placement rules so
 players can place plants on top of any block with a top-rim, leaves, or dirt
-path. Supports MC 1.21.1, 1.21.4, 1.21.5, 1.21.8, 1.21.11, **26.1.2**, and
-**26.2**. Source tree is unified; per-version differences use `//? if`
+path. Supports MC 1.21.1, 1.21.4, 1.21.5, 1.21.8, 1.21.11, **26.1.2**, **26.2**,
+and **26.3**. Source tree is unified; per-version differences use `//? if`
 Stonecutter preprocessor comments. VCS reset version is **1.21.5**; the
-current Stonecutter *active* version is **26.2** (`stonecutter.gradle.kts`).
+current Stonecutter *active* version is **26.3** (`stonecutter.gradle.kts`).
 
 ## Key files
 
@@ -108,7 +108,7 @@ been updated to handle the non-obfuscated nature of Minecraft 26.x.
 
 ## ✅ PORT IS COMPLETE
 
-All 7 versions (1.21.1, 1.21.4, 1.21.5, 1.21.8, 1.21.11, 26.1.2, 26.2) build
+All 8 versions (1.21.1, 1.21.4, 1.21.5, 1.21.8, 1.21.11, 26.1.2, 26.2, 26.3) build
 and pass all tests. `./gradlew chiseledBuild` succeeds without errors.
 
 ## 26.2 port — complete (branch `26.2`)
@@ -137,6 +137,19 @@ What the port did need:
   test task list; the release workflow's JDK selector is now
   `startsWith(matrix.minecraft, '26.')` instead of an equality check on
   `26.1.2`.
+
+## 26.3 port — complete (branch `26.3`)
+
+- `versions/26.3/` — `fabric_loader=0.19.5`, `fabric_api=0.162.0+26.3`,
+  `cloth_config=26.3.159`, `modmenu=21.0.0`, `minecraft_dep=>=26.3- <26.4`,
+  plus its own copy of `identity-mappings.jar`. Loom 1.17.20 still works.
+- New plants `POPLAR_SAPLING` (SaplingBlock) and `RED_SHRUB` (BushBlock)
+  added to `PlaceablePlants` behind `//? if >=26.3`. `SHELF_MUSHROOM` is
+  wall-attached and intentionally excluded.
+- `BonemealableBlock` methods gained a `BonemealSource` param in 26.3; the
+  mod does not hook them. All hooked method descriptors are unchanged.
+- Smoke-tested: `:26.3:runServer` boots to `Done` with all mixins applied.
+- Details in `docs/VERSIONS.md` → "Reference: 26.3".
 
 ### Remaining task — Runtime verification (Priority 4)
 

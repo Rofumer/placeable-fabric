@@ -121,6 +121,9 @@ jobs:
                     -   minecraft: "26.2"
                         game_versions: |
                             26.2
+                    -   minecraft: "26.3"
+                        game_versions: |
+                            26.3
 
         steps:
             # Step 1 — Checkout. fetch-depth: 0 because mc-publish reads

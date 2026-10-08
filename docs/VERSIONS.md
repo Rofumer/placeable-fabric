@@ -18,11 +18,12 @@ a tested artifact.
 | 1.21.11    | first-class | `1.21.11+build.5`    | Final 1.21 series version. "Mounts of Mayhem".                                                                                                                                                                                                                 |
 | 26.1.2     | first-class | Mojmap (no Yarn)     | 2026 year-based versioning. Mojang official mappings; Java 25; no Yarn. Uses `//? if >=26` Stonecutter conditionals throughout — see "Why a separate 26.1.2 build?" below.                                                                                     |
 | 26.2       | first-class | Mojmap (no Yarn)     | Adds sulfur / cinnabar / speleothem blocks and collapses the dyed-colour and weathering-copper block families into `ColorCollection` / `WeatheringCopperCollection`. **No plant-block changes vs. 26.1.2** — the shared `//? if >=26` source tree compiles unmodified. Requires Loom 1.17+.                                    |
+| 26.3       | first-class | Mojmap (no Yarn)     | Adds the poplar wood set (`POPLAR_SAPLING`), `RED_SHRUB` (a `BushBlock`) and the wall-attached `SHELF_MUSHROOM` (intentionally excluded). `DirtPathBlock` → `PathBlock` (the `Blocks.DIRT_PATH` field is unchanged). New enum entries are gated on `//? if >=26.3`. |
 
 ## Per-version compatibility map
 
 The 1.21 series spans 12 game versions (1.21, 1.21.1, …, 1.21.11). The mod
-ships **7 jars**; the five 1.21.x jars together cover **all 12** by leveraging each game-drop's
+ships **8 jars**; the five 1.21.x jars together cover **all 12** by leveraging each game-drop's
 internal patch line (Mojang's "drop X.Y" branches share the same plant block
 API across patch releases within the drop) and adding a dedicated 1.21.4
 build to handle the symbol gap between "Bundles of Bravery" and
@@ -41,6 +42,7 @@ CurseForge "supported versions" list per release entry.
 | 1.21.11   | Mounts of Mayhem ** | 1.21.9, 1.21.10, 1.21.11     | `1.21.9,1.21.10,1.21.11`            | `>=1.21.9- <1.22`                     |
 | 26.1.2    | 2026 (year-based)   | 26.1.2                       | `26.1.2`                            | `>=26.1.2- <26.2`                     |
 | 26.2      | 2026 (year-based)   | 26.2                         | `26.2`                              | `>=26.2- <26.3`                       |
+| 26.3      | 2026 (year-based)   | 26.3                         | `26.3`                              | `>=26.3- <26.4`                       |
 
 \* The 1.21.1 jar is bytecode-compatible across 1.21 → 1.21.3 because the
 plant Block roster is unchanged between Tricky Trials and the pre-Bundles
@@ -107,9 +109,9 @@ extend an existing jar's compat range. The procedure is:
 
 ## Versions explicitly OUT OF SCOPE for this mod's lifecycle
 
-No versions currently out of scope — 26.1.2 and 26.2 were successfully
-ported. Future year-based MC versions (26.3+) will be assessed when
-released.
+No versions currently out of scope — 26.1.2, 26.2 and 26.3 were
+successfully ported. Future year-based MC versions (26.4+) will be assessed
+when released.
 
 ## Upgrade-new-MC-version checklist
 
@@ -228,3 +230,29 @@ changes**. Findings from the port:
    own copy of `identity-mappings.jar`, as Loom resolves the file relative to
    each subproject directory.
 
+## Reference: 26.3 (completed)
+
+26.3 was added as a first-class Stonecutter target. Findings from the port:
+
+1. Dependencies: Fabric Loader 0.19.5, Fabric API `0.162.0+26.3`, Cloth
+   Config `26.3.159`, ModMenu `21.0.0`. Loom 1.17.20 still works — no plugin
+   bump needed.
+2. Plant audit (`javap` diff of `Blocks` and the `block` package between the
+   26.2 and 26.3 merged Loom jars):
+   - **added plants**: `POPLAR_SAPLING` (a plain `SaplingBlock` with
+     `TreeGrower.POPLAR`, so `SaplingBlockMixin` covers it) and `RED_SHRUB`
+     (a `BushBlock`, covered by `PlantBlockMixin` via `VegetationBlock`).
+     Both are new `PlaceablePlants` entries gated on `//? if >=26.3`;
+   - **excluded**: `SHELF_MUSHROOM` (`ShelfMushroomBlock extends
+     HorizontalDirectionalBlock`) attaches to the side of a block, so the
+     `isValidFloor` model does not apply;
+   - **class churn**: `DirtPathBlock` → `PathBlock`, `RedStoneWireBlock` →
+     `RedstoneWireBlock`. The mod only uses the `Blocks.DIRT_PATH` field,
+     which is unchanged.
+3. `BonemealableBlock.isValidBonemealTarget` / `performBonemeal` gained a
+   trailing `BonemealSource` parameter. The mod hooks neither (it wraps
+   `BoneMealItem.growCrop`, whose signature is unchanged), and every hooked
+   method (`canSurvive`, `randomTick`, `tick`, `getStateForPlacement`) has
+   an identical descriptor in 26.2 and 26.3.
+4. `BlockTags.CONVERTABLE_TO_MUD` was renamed `CONVERTIBLE_TO_MUD`; the mod
+   does not reference it.

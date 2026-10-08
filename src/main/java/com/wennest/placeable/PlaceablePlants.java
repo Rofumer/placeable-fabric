@@ -45,6 +45,9 @@ import java.util.Optional;
  *       blocks; vanilla placement rules are already permissive enough.</li>
  *   <li>{@code SPORE_BLOSSOM} — ceiling-attached, not floor-placed; the
  *       {@code isValidFloor} model does not apply.</li>
+ *   <li>{@code SHELF_MUSHROOM} (26.3+) — wall-attached to the side of a
+ *       block, not floor-placed; the {@code isValidFloor} model does not
+ *       apply.</li>
  *   <li>{@code GLOW_LICHEN}, {@code PALE_HANGING_MOSS}, {@code HANGING_ROOTS},
  *       {@code VINE}, {@code CAVE_VINES}, {@code TWISTING_VINES},
  *       {@code WEEPING_VINES}, {@code KELP_PLANT}, {@code SEAGRASS},
@@ -72,6 +75,9 @@ public enum PlaceablePlants {
     // PALE_OAK_SAPLING was introduced in 1.21.4.
     //? if >=1.21.4
     PALE_OAK_SAPLING(Blocks.PALE_OAK_SAPLING),
+    // POPLAR_SAPLING was introduced in 26.3.
+    //? if >=26.3
+    POPLAR_SAPLING(Blocks.POPLAR_SAPLING),
     AZALEA(Blocks.AZALEA),
     FLOWERING_AZALEA(Blocks.FLOWERING_AZALEA),
 
@@ -96,6 +102,9 @@ public enum PlaceablePlants {
     BUSH(Blocks.BUSH),
     //? if >=1.21.5
     FIREFLY_BUSH(Blocks.FIREFLY_BUSH),
+    // RED_SHRUB was introduced in 26.3 (a BushBlock, like BUSH).
+    //? if >=26.3
+    RED_SHRUB(Blocks.RED_SHRUB),
     DEAD_BUSH(Blocks.DEAD_BUSH),
 
     // Flowers
